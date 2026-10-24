@@ -4,5 +4,8 @@ includes:
 parameters:
     paths!:
         - app/Validation
+        - app/Providers
+        - app/Rules
+        - tests
     noldors:
         allowedValidationPaths!: []

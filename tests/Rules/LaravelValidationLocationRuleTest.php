@@ -64,6 +64,18 @@ final class LaravelValidationLocationRuleTest extends RuleTestCase
         $this->analyse([__DIR__ . '/../Fixtures/app/UseCases/PreparedValidation.php'], []);
     }
 
+    public function testAllowsStaticPredicatesButRejectsRuleFactoriesAndConstruction(): void
+    {
+        $this->analyse([__DIR__ . '/../Fixtures/app/UseCases/StaticRuleMethods.php'], [
+            [self::MESSAGE, 18],
+            [self::MESSAGE, 20],
+            [self::MESSAGE, 21],
+            [self::MESSAGE, 22],
+            [self::MESSAGE, 25],
+            [self::MESSAGE, 27],
+        ]);
+    }
+
     public function testRejectsSimilarDirectoryNames(): void
     {
         $this->analyse([__DIR__ . '/../Fixtures/app/ValidationHelpers/Invalid.php'], [[self::MESSAGE, 13]]);

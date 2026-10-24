@@ -8,6 +8,9 @@ parameters:
             - app/Http/Requests
             - app/Validation
             - app/Validators
+            - app/Providers
+            - app/Rules
+            - tests
 
 parametersSchema:
     noldors: structure([

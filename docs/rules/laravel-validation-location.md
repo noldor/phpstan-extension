@@ -16,6 +16,13 @@ class in an allowed directory.
 Executing a prepared validator and unrelated methods remain allowed. A class is
 required even in an allowed directory: global-scope declarations are rejected.
 
+Static helpers on custom rule classes are allowed when their PHPStan return type
+does not describe a validation rule. For example, `WebPushEndpoint::allowed()`
+returning `bool` only checks a value. Factories returning rule objects and
+built-in Laravel rule builders still count as declarations. This includes
+inherited builder methods, `Password::defaults()` and
+`Illuminate\Validation\Rule` factories returning rule strings or nested rules.
+
 ## Example
 
 Rejected in `app/Services/RegisterUser.php`:

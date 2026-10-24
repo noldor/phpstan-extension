@@ -5,6 +5,9 @@ parameters:
     paths!:
         - custom
         - app/Validation
+        - app/Providers
+        - app/Rules
+        - tests
     noldors:
         allowedValidationPaths!:
             - custom/Validation
