@@ -52,7 +52,10 @@ final class RulesConfigurationTest extends TestCase
         $this->assertStringContainsString('architecture.validationLocation', $result['output']);
         $this->assertStringContainsString('/app/Validation/Allowed.php', $result['output']);
         $this->assertStringNotContainsString('/custom/Validation/Allowed.php', $result['output']);
-        $this->assertStringContainsString('"file_errors":1', $result['output']);
+        $this->assertStringContainsString('/app/Providers/Allowed.php', $result['output']);
+        $this->assertStringContainsString('/app/Rules/Allowed.php', $result['output']);
+        $this->assertStringContainsString('/tests/Unit/Allowed.php', $result['output']);
+        $this->assertStringContainsString('"file_errors":7', $result['output']);
     }
 
     public function testAnEmptyAllowlistForbidsValidationEverywhere(): void
@@ -62,7 +65,10 @@ final class RulesConfigurationTest extends TestCase
         $this->assertSame(1, $result['exitCode'], $result['output']);
         $this->assertStringContainsString('architecture.validationLocation', $result['output']);
         $this->assertStringContainsString('/app/Validation/Allowed.php', $result['output']);
-        $this->assertStringContainsString('"file_errors":1', $result['output']);
+        $this->assertStringContainsString('/app/Providers/Allowed.php', $result['output']);
+        $this->assertStringContainsString('/app/Rules/Allowed.php', $result['output']);
+        $this->assertStringContainsString('/tests/Unit/Allowed.php', $result['output']);
+        $this->assertStringContainsString('"file_errors":7', $result['output']);
     }
 
     /**
