@@ -1,0 +1,12 @@
+includes:
+    - ../../../src/rules.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer
+    paths:
+        - app
+        - src
+    excludePaths:
+        analyse:
+            - src/Excluded.php

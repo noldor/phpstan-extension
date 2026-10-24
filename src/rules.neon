@@ -1,0 +1,42 @@
+parameters:
+    noldors:
+        allowedValidationPaths:
+            - app/GraphQL/Validators
+            - app/Http/Requests
+            - app/Validation
+
+parametersSchema:
+    noldors: structure([
+        allowedValidationPaths: listOf(string())
+    ])
+
+services:
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationLocationRule
+        arguments:
+            allowedValidationPaths: %noldors.allowedValidationPaths%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationCallableRule
+        arguments:
+            nodeType: PHPStan\Node\FunctionCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationCallableRule
+        arguments:
+            nodeType: PHPStan\Node\StaticMethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationCallableRule
+        arguments:
+            nodeType: PHPStan\Node\MethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationCallableRule
+        arguments:
+            nodeType: PHPStan\Node\InstantiationCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]

@@ -1,0 +1,68 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "noldors/phpstan-extension",
+    "description": "Custom PHPStan rules for PHP and Laravel projects.",
+    "type": "phpstan-extension",
+    "license": "MIT",
+    "keywords": [
+        "phpstan",
+        "phpstan-extension",
+        "laravel",
+        "static-analysis"
+    ],
+    "require": {
+        "php": ">=8.5",
+        "ext-mbstring": "*",
+        "phpstan/phpstan": "^2.3"
+    },
+    "require-dev": {
+        "denzyl/phanalist": "^1.1",
+        "laravel/framework": "^13.0",
+        "laravel/pint": "^1.27",
+        "phpunit/phpunit": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Noldors\\PHPStan\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Noldors\\PHPStan\\Tests\\": "tests/",
+            "Nuwave\\Lighthouse\\Validation\\": "tests/Stubs/Lighthouse/"
+        },
+        "classmap": [
+            "tests/Fixtures/"
+        ]
+    },
+    "scripts": {
+        "format": "pint",
+        "test:lint": "pint --test",
+        "test:types": "phpstan analyse --memory-limit=512M",
+        "test:phanalist": "phanalist --src src",
+        "test": "phpunit",
+        "check": [
+            "@test:lint",
+            "@test:types",
+            "@test:phanalist",
+            "@test"
+        ]
+    },
+    "support": {
+        "issues": "https://github.com/noldor/phpstan-extension/issues",
+        "source": "https://github.com/noldor/phpstan-extension"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "archive": {
+        "exclude": [
+            "/*",
+            "/.*",
+            "!/composer.json",
+            "!/license.txt",
+            "!/src",
+            "!/src/**"
+        ]
+    }
+}

@@ -1,0 +1,10 @@
+includes:
+    - phpstan.neon
+
+parameters:
+    paths!:
+        - custom
+        - app/Validation
+    noldors:
+        allowedValidationPaths!:
+            - custom/Validation
