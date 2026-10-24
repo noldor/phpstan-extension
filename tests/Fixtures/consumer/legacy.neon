@@ -1,0 +1,8 @@
+includes:
+    - ../../../src/rules.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-legacy
+    paths:
+        - callables
