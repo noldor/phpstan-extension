@@ -82,6 +82,15 @@ final class LaravelValidationCallableRuleTest extends RuleTestCase
         ]]);
     }
 
+    public function testAllowsStaticPredicateReferencesButRejectsRuleFactoryReferences(): void
+    {
+        $this->nodeType = StaticMethodCallableNode::class;
+        $this->analyse([__DIR__ . '/../Fixtures/app/UseCases/StaticRuleMethods.php'], \array_map(
+            static fn (int $line): array => ['Define Laravel validation only in validator classes under the configured allowed paths; invoke a prepared validator here instead.', $line],
+            [19, 23, 24, 26, 28],
+        ));
+    }
+
     protected function getRule(): LaravelValidationCallableRule
     {
         return new LaravelValidationCallableRule(

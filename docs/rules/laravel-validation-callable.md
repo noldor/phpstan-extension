@@ -12,6 +12,10 @@ References to validation creation, rule builders and mutations must stay in
 allowed classes. References to prepared-validator execution and unrelated APIs
 remain allowed. PHPStan's own checks for unsupported PHP syntax still apply.
 
+The same return-type distinction applies to custom static helpers:
+`WebPushEndpoint::allowed(...)` returning a boolean predicate is allowed, while a
+callable referencing a factory that returns a validation rule is restricted.
+
 ## Example
 
 Rejected in a service outside the allowed validation directories:

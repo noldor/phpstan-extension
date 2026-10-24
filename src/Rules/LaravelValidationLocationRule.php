@@ -117,7 +117,8 @@ final class LaravelValidationLocationRule implements Rule
 
         $name = \mb_strtolower($node->name->toString());
 
-        return $this->isRuleType($type)
+        return $this->isLaravelRuleBuilderType($type)
+            || $this->isRuleBuilderDeclaration($type, $name, $scope)
             || $this->isFactoryDeclaration($type, $name)
             || $this->isRequestDeclaration($type, $name)
             || $this->isControllerDeclaration($node, $scope, $type, $name);
@@ -163,6 +164,10 @@ final class LaravelValidationLocationRule implements Rule
 
         if (null === $method) {
             return false;
+        }
+
+        if ($method->isStatic() && $this->isLaravelRuleBuilderType(new ObjectType($method->getDeclaringClass()->getName()))) {
+            return true;
         }
 
         foreach ($method->getVariants() as $variant) {
@@ -243,10 +248,23 @@ final class LaravelValidationLocationRule implements Rule
 
     private function isRuleType(Type $type): bool
     {
-        foreach ([LaravelRule::class, ValidationRule::class, RuleContract::class, InvokableRule::class] as $class) {
+        if ($this->isLaravelRuleBuilderType($type)) {
+            return true;
+        }
+
+        foreach ([ValidationRule::class, RuleContract::class, InvokableRule::class] as $class) {
             if ($this->hasType($type, $class)) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private function isLaravelRuleBuilderType(Type $type): bool
+    {
+        if ($this->hasType($type, LaravelRule::class)) {
+            return true;
         }
 
         foreach ($type->getObjectClassNames() as $class) {
