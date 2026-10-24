@@ -35,8 +35,8 @@ The default allowed directories, including their nested directories, are:
 - `app/Validation`
 - `app/Validators`
 - `app/Providers`
-- `tests`
 - `app/Rules`
+- `tests`
 
 Global-scope declarations remain forbidden.
 
