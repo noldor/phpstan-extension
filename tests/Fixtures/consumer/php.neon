@@ -1,0 +1,8 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-php
+    paths:
+        - callables

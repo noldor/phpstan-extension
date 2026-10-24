@@ -9,6 +9,28 @@ use Symfony\Component\Process\Process;
 
 final class RulesConfigurationTest extends TestCase
 {
+    public function testLaravelSetChecksDeclarationsAndCallables(): void
+    {
+        $result = $this->analyse('laravel.neon');
+
+        $this->assertSame(1, $result['exitCode'], $result['output']);
+        $this->assertStringContainsString('architecture.validationLocation', $result['output']);
+        $this->assertStringContainsString('"file_errors":4', $result['output']);
+    }
+
+    public function testPhpSetDoesNotEnableLaravelRules(): void
+    {
+        $result = $this->analyse('php.neon');
+
+        $this->assertSame(0, $result['exitCode'], $result['output']);
+        $this->assertStringNotContainsString('architecture.validationLocation', $result['output']);
+    }
+
+    public function testLegacyConfigurationKeepsLaravelBehaviour(): void
+    {
+        $this->assertSame($this->analyse('laravel.neon'), $this->analyse('legacy.neon'));
+    }
+
     public function testChecksAllConfiguredAnalysisPaths(): void
     {
         $result = $this->analyse('phpstan.neon');

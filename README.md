@@ -1,30 +1,32 @@
 # Noldors PHPStan extension
 
-Custom PHPStan rules. Requires PHP >=8.5, `ext-mbstring` and PHPStan ^2.3.
+Custom PHPStan rule sets for PHP and Laravel projects.
+Requires PHP >=8.5, `ext-mbstring` and PHPStan ^2.3.
 
-## Rules
-
-| Rule | Description |
-| --- | --- |
-| `LaravelValidationLocationRule` | Allows Laravel validation declarations only inside classes in configured directories. Checks helpers, factories, request/controller validation, rule construction and mutations, callbacks, and `rules()` methods on FormRequest and Lighthouse validators. Executing prepared validators remains allowed. |
-| `LaravelValidationCallableRule` | Applies the same restriction to first-class function, method, static method and constructor callables. |
-
-Both rules report `architecture.validationLocation`. Your own validator
-namespaces are unrestricted; the location check uses file paths.
-
-## Installation and connection
-
-After publication on Packagist:
+## Installation
 
 ```sh
 composer require --dev noldors/phpstan-extension
 ```
 
-Add to your project's `phpstan.neon`:
+## Connection
+
+For a PHP project, add to `phpstan.neon`:
 
 ```neon
 includes:
-    - vendor/noldors/phpstan-extension/src/rules.neon
+    - vendor/noldors/phpstan-extension/src/php.neon
+
+parameters:
+    paths:
+        - src
+```
+
+For a Laravel project, use the Laravel set, which also includes the PHP set:
+
+```neon
+includes:
+    - vendor/noldors/phpstan-extension/src/laravel.neon
 
 parameters:
     paths:
@@ -32,34 +34,17 @@ parameters:
         - src
 ```
 
-This enables both rules, including all four callable node types. The rules check
-every file selected by PHPStan's `paths` and exclusions, including files outside
-`app/`. Keep your existing Larastan configuration when analysing Laravel APIs.
-The rules are opt-in and are not automatically enabled by extension-installer.
+Keep only existing project directories in `paths`. The PHP set is currently empty;
+the Laravel set enables the existing validation rules. Keep your existing
+Larastan configuration when analysing Laravel APIs.
 
-## Allowed validation directories
+The sets are opt-in. Existing `src/rules.neon` includes remain supported and
+load the Laravel set.
 
-The defaults are `app/GraphQL/Validators`, `app/Http/Requests` and `app/Validation`,
-including their nested directories. Global-scope declarations remain forbidden.
+## Documentation
 
-To replace the defaults:
-
-```neon
-parameters:
-    noldors:
-        allowedValidationPaths!:
-            - src/Domain/Validation
-            - modules/Billing/Requests
-```
-
-Validation declarations are forbidden elsewhere in the analysed files. Paths
-can be absolute or relative to the directory from which PHPStan is run. They
-identify directories, not namespaces or glob patterns; similarly named
-neighbouring directories do not match.
-
-The `!` suffix replaces the default list; omit it to append directories. Use
-`allowedValidationPaths!: []` to forbid declarations throughout the analysis
-scope.
+See the [rule documentation](docs/README.md) for the rule catalogue, examples and
+configuration options.
 
 ## Development
 
@@ -80,25 +65,17 @@ when this package is used as a dependency.
 
 ## Distribution
 
-Composer archives and Git distribution archives contain only:
+Composer and Git dist archives contain only `composer.json`, MIT `license.txt`
+and `src/`, including all rule-set configuration files. Documentation, tests,
+tooling and dependencies stay in the source checkout. `archive.exclude` and
+`.gitattributes` enforce this allowlist. A source checkout (`--prefer-source`)
+contains the full repository.
 
-```text
-composer.json
-license.txt
-src/
-```
-
-`src/rules.neon` is included with the rule classes. README, tests, tooling
-configuration and dependencies stay in the development checkout. `archive.exclude`
-and `.gitattributes` enforce this allowlist, including for newly added root files.
-A source checkout (`--prefer-source`) contains the full Git repository.
-
-The package is licensed under MIT; see [license.txt](license.txt).
-No release has been published yet.
+See [license.txt](license.txt).
 
 ## Releases
 
 Work happens on branches from `master`, through PRs with passing quality checks
-and tests. After an ordinary merge, GitHub Actions checks `master` again, creates a
-SemVer tag (starting with `v0.0.1`) and updates Packagist. See the
+and tests. After an ordinary merge, GitHub Actions checks `master` again, creates
+a SemVer tag and updates Packagist. See the
 [release workflow and activation guide](.github/RELEASING.md).
