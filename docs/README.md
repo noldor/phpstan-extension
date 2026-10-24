@@ -28,8 +28,9 @@ Validator namespaces are unrestricted; placement is checked using file paths.
 
 ## Allowed validation directories
 
-The defaults are `app/GraphQL/Validators`, `app/Http/Requests` and `app/Validation`,
-including their nested directories. Global-scope declarations remain forbidden.
+The defaults are `app/GraphQL/Validators`, `app/Http/Requests`, `app/Validation`
+and `app/Validators`, including their nested directories. Global-scope
+declarations remain forbidden.
 
 To replace the defaults:
 
