@@ -1,0 +1,10 @@
+includes:
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-clean-code-laravel
+    paths: [clean-code]
+    noldors:
+        dto:
+            classes: [Noldors\PHPStan\Tests\Fixtures\CleanCodeConsumer\LaravelData]

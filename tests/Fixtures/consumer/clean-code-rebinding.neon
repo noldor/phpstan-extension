@@ -1,0 +1,7 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-cause-rebinding
+    paths: [clean-code-rebinding]

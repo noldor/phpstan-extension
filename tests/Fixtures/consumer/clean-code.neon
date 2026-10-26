@@ -1,0 +1,10 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-clean-code
+    parallel:
+        maximumNumberOfProcesses: 1
+    paths:
+        - clean-code
