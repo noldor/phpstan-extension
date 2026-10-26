@@ -81,5 +81,5 @@ See [license.txt](license.txt).
 
 Work happens on branches from `master`, through PRs with passing quality checks
 and tests. After an ordinary merge, GitHub Actions checks `master` again, creates
-a SemVer tag and updates Packagist. See the
+a SemVer tag and verifies its publication through the Packagist webhook. See the
 [release workflow and activation guide](.github/RELEASING.md).

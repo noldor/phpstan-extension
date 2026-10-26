@@ -2,9 +2,8 @@ import os
 import sys
 import unittest
 import io
-import json
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
@@ -14,12 +13,10 @@ import packagist
 class PackagistPublicationTest(unittest.TestCase):
     def setUp(self):
         self.environment = patch.dict(os.environ, {
-            'PACKAGIST_USERNAME': 'test-user',
-            'PACKAGIST_TOKEN': 'test-token',
             'GITHUB_REPOSITORY': 'noldor/phpstan-extension',
             'GITHUB_SHA': 'a' * 40,
             'RELEASE_TAG': 'v0.0.1',
-        })
+        }, clear=True)
         self.environment.start()
         self.addCleanup(self.environment.stop)
 
@@ -29,69 +26,79 @@ class PackagistPublicationTest(unittest.TestCase):
         }]}}
 
     @patch.object(packagist, 'request_json')
-    def testAuthenticatesAndVerifiesPublishedCommit(self, request):
-        request.side_effect = [{'status': 'success'}, self.metadata()]
-        packagist.publish_release('noldors/phpstan-extension')
-        update = request.call_args_list[0]
-        self.assertEqual(update.args[0], 'https://packagist.org/api/update-package')
-        self.assertEqual(update.kwargs['headers']['Authorization'], 'Bearer test-user:test-token')
-        self.assertEqual(update.kwargs['data'], {'repository': 'https://github.com/noldor/phpstan-extension'})
+    def testVerifiesPublishedCommitWithoutCredentialsOrRefresh(self, request):
+        request.return_value = self.metadata()
+        packagist.verify_release('noldors/phpstan-extension')
+        request.assert_called_once_with(
+            'https://repo.packagist.org/p2/noldors/phpstan-extension.json',
+            headers={
+                'User-Agent': 'noldor/phpstan-extension release automation',
+                'Cache-Control': 'no-cache',
+            },
+        )
 
     @patch.object(packagist.time, 'sleep')
     @patch.object(packagist, 'request_json')
     def testWaitsForTheQueuedUpdate(self, request, sleep):
-        request.side_effect = [{'status': 'success'}, {'packages': {}}, self.metadata()]
-        packagist.publish_release('noldors/phpstan-extension')
+        request.side_effect = [{'packages': {}}, self.metadata()]
+        packagist.verify_release('noldors/phpstan-extension')
         sleep.assert_called_once_with(5)
 
     @patch.object(packagist.time, 'sleep')
     @patch.object(packagist, 'request_json')
     def testWaitsForInitialMetadataToBecomeAvailable(self, request, sleep):
         request.side_effect = [
-            {'status': 'success'},
             HTTPError('https://repo.packagist.org', 404, 'Not found', None, None),
             self.metadata(),
         ]
-        packagist.publish_release('noldors/phpstan-extension')
+        packagist.verify_release('noldors/phpstan-extension')
+        sleep.assert_called_once_with(5)
+
+    @patch.object(packagist.time, 'sleep')
+    @patch.object(packagist, 'request_json')
+    def testRetriesATransientNetworkFailure(self, request, sleep):
+        request.side_effect = [URLError('Temporary connection failure'), self.metadata()]
+        packagist.verify_release('noldors/phpstan-extension')
         sleep.assert_called_once_with(5)
 
     @patch.object(packagist, 'request_json')
-    def testRejectsAnUnsuccessfulUpdate(self, request):
-        request.return_value = {'status': 'error'}
-        with self.assertRaisesRegex(RuntimeError, 'accept'):
-            packagist.publish_release('noldors/phpstan-extension')
+    def testPropagatesHttpErrorsOtherThanNotFound(self, request):
+        request.side_effect = HTTPError('https://repo.packagist.org', 403, 'Forbidden', None, None)
+        with self.assertRaises(HTTPError):
+            packagist.verify_release('noldors/phpstan-extension')
         self.assertEqual(request.call_count, 1)
 
     @patch.object(packagist, 'request_json')
     def testRejectsAVersionPointingAtAnotherCommit(self, request):
-        request.side_effect = [{'status': 'success'}, self.metadata('b' * 40)]
+        request.return_value = self.metadata('b' * 40)
         with self.assertRaisesRegex(RuntimeError, 'another commit'):
-            packagist.publish_release('noldors/phpstan-extension')
+            packagist.verify_release('noldors/phpstan-extension')
 
     @patch.object(packagist.time, 'sleep')
     @patch.object(packagist, 'request_json')
     def testFailsWhenTheVersionNeverAppears(self, request, sleep):
-        request.side_effect = [{'status': 'success'}] + [{'packages': {}}] * 36
-        with self.assertRaisesRegex(RuntimeError, 'not visible'):
-            packagist.publish_release('noldors/phpstan-extension')
+        request.return_value = {'packages': {}}
+        with self.assertRaisesRegex(RuntimeError, 'not visible.*webhook'):
+            packagist.verify_release('noldors/phpstan-extension')
+        self.assertEqual(request.call_count, 120)
+        self.assertEqual(sleep.call_count, 119)
+        sleep.assert_called_with(5)
 
 
 class PackagistRequestTest(unittest.TestCase):
     @patch.object(packagist, 'urlopen')
-    def testSendsJsonAndKeepsCredentialsOutOfTheUrl(self, open_url):
-        open_url.return_value.__enter__.return_value = io.BytesIO(b'{"status":"success"}')
-        data = {'repository': 'https://github.com/noldor/phpstan-extension'}
+    def testReadsPublicMetadataWithoutCredentialsOrRequestBody(self, open_url):
+        open_url.return_value.__enter__.return_value = io.BytesIO(b'{"packages":{}}')
         result = packagist.request_json(
-            'https://packagist.org/api/update-package',
-            headers={'Authorization': 'Bearer test-user:test-token', 'Content-Type': 'application/json'},
-            data=data,
+            'https://repo.packagist.org/p2/noldors/phpstan-extension.json',
+            headers={'User-Agent': 'noldor/phpstan-extension release automation'},
         )
         request = open_url.call_args.args[0]
-        self.assertEqual(request.full_url, 'https://packagist.org/api/update-package')
-        self.assertEqual(request.get_method(), 'POST')
-        self.assertEqual(request.get_header('Authorization'), 'Bearer test-user:test-token')
-        self.assertEqual(json.loads(request.data), data)
-        self.assertEqual(result, {'status': 'success'})
+        self.assertEqual(request.full_url, 'https://repo.packagist.org/p2/noldors/phpstan-extension.json')
+        self.assertEqual(request.get_method(), 'GET')
+        self.assertIsNone(request.get_header('Authorization'))
+        self.assertIsNone(request.data)
+        self.assertEqual(result, {'packages': {}})
 
 
 if __name__ == '__main__':
