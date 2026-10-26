@@ -8,9 +8,9 @@
    Actions checks are `Quality` and `PR title`; all review threads must be resolved.
    Keep the branch up to date with `master`. Merging remains a human decision.
 4. After merge, Actions rechecks the resulting `master` commit. Only a successful
-   quality job can start the release job, which creates an immutable tag and
-   requests a Packagist refresh. Publication succeeds only when Packagist exposes
-   the expected version at the exact checked commit.
+   quality job can start the release job, which creates an immutable tag. GitHub
+   sends a signed push webhook to Packagist, and Actions waits for Packagist to
+   expose the expected version at the exact checked commit.
 
 ## Versions
 
@@ -42,11 +42,11 @@ implementation directly on `master`. Never bypass existing protection rules to
 seed a repository that already has history.
 
 The first PR requires the user's merge authorization. Packagist cannot register
-the default branch until that merge puts `composer.json` on `master`. Leave the
-Packagist credentials unset during bootstrap: the release preflight stops before
-tagging. After the first merge, register the package and configure its credentials,
-then dispatch the workflow on `master` to create `v0.0.1`. Later merges use the
-normal automatic release path.
+the default branch until that merge puts `composer.json` on `master`. The release
+preflight stops before tagging while the package is unregistered. After the
+first merge, register the package, configure and verify its GitHub webhook, then
+dispatch the workflow on `master` to create `v0.0.1`. Later merges use the normal
+automatic release path.
 
 Configure the merge settings before merging the initial PR, and complete
 Packagist activation after its manifest reaches `master`:
@@ -59,11 +59,8 @@ Packagist activation after its manifest reaches `master`:
   pushes and deletion and has no bypass actors.
 - Register `https://github.com/noldor/phpstan-extension` on Packagist as
   `noldors/phpstan-extension` after the repository contains its manifest.
-- Repository Actions variable `PACKAGIST_USERNAME`: the publishing account's
-  Packagist login; it need not equal the package vendor `noldors`.
-- Repository Actions secret `PACKAGIST_TOKEN`: that account's **safe API token**.
-  Existing-package refreshes require only the safe token. Register the package
-  through Packagist's UI; do not place the account's main token in this workflow.
+- Configure the signed GitHub webhook described below before activating releases.
+  Actions does not need a Packagist API token or username variable.
 - Actions must be enabled. The release job requests `contents: write` for the
   repository's built-in `GITHUB_TOKEN`; a separate GitHub PAT is unnecessary.
 
@@ -74,9 +71,37 @@ the authenticated GitHub CLI after checking existing rulesets to avoid duplicate
 gh api repos/noldor/phpstan-extension/rulesets --input .github/rulesets/master.json
 ```
 
-The workflow updates Packagist in the same run that creates the tag. It does not
-depend on a second workflow being triggered by a `GITHUB_TOKEN`-created tag.
+The same workflow run creates the tag and verifies its publication. The
+repository webhook notifies Packagist independently of Actions workflow
+triggers; no second workflow is needed for a `GITHUB_TOKEN`-created tag.
 Packagist indexes Git tags; this workflow does not upload a ZIP to Packagist.
+
+## Packagist webhook
+
+In the GitHub repository's **Settings > Webhooks**, configure one active webhook:
+
+- Payload URL: `https://packagist.org/api/github?username=PACKAGIST_USERNAME`.
+  Replace the placeholder with the maintaining account's Packagist login.
+- Content type: `application/json`.
+- Secret: that account's existing **safe API token** from its Packagist profile.
+  Keep the token out of the payload URL, repository files and Actions variables.
+- Events: **Just the push event**. Tag creation is a push event.
+- SSL verification: enabled.
+
+Check that the initial `ping` delivery receives a successful response from
+Packagist. For an existing package, its owner package list should then stop
+showing **Legacy Auto-Update**. After the first release using this flow, confirm
+that the tag's `push` delivery succeeded and that the release verifier passed.
+
+When migrating, stop the old release job before changing hooks, or let any active
+release finish first. After this workflow is merged, remove the unused
+`PACKAGIST_TOKEN` Actions secret and `PACKAGIST_USERNAME` Actions variable. Do not
+revoke the Packagist token used by the webhook. Do not call `/api/update-package`
+as a fallback: an ordinary authenticated call resets Packagist's integration
+status and restores the misleading legacy warning for GitHub repositories.
+
+See [Packagist's GitHub hook setup](https://packagist.org/about#how-to-update-packages)
+and [GitHub push events](https://docs.github.com/en/webhooks/webhook-events-and-payloads#push).
 
 ## Verification and recovery
 
@@ -93,16 +118,23 @@ The Git archive uses committed files. Before the initial commit, validate the
 same content with a disposable Git tree outside this checkout; keep the real
 repository uncommitted while publication is on hold.
 
-Missing Packagist credentials or registration fail before a tag is created. If
-the update fails after tagging, rerun the release job or dispatch the workflow
-on `master`. A tag already pointing at that commit is reused; it is not bumped
-again, overwritten or deleted. Retry the latest `master` run if the branch has
-advanced. The workflow serializes releases, and obsolete checked-out commits
-cannot tag a newer `master` commit.
+Missing Packagist registration fails before a tag is created. A missing or
+failing webhook causes publication verification to fail after tagging. The
+verifier polls public metadata up to 120 times, five seconds apart, within the
+release job's 15-minute timeout; it never requests an update itself.
+
+For recovery, fix the webhook and use **Settings > Webhooks > Recent Deliveries >
+Redeliver** on the original tag's push event, then rerun the release job. If the
+delivery is no longer available, use **Update** on the Packagist package page as
+a maintainer before retrying. Rerunning Actions alone does not resend the
+webhook for an existing tag. A tag already pointing at the checked commit is
+reused; it is never bumped again, overwritten or deleted. Retry the latest
+`master` run if the branch has advanced. The workflow serializes releases, and
+obsolete checked-out commits cannot tag a newer `master` commit.
 
 Treat a Packagist version pointing at another commit as an error to investigate;
-keep existing tags intact. Fix the publishing credentials or registry problem
-and retry rather than changing an already published version.
+keep existing tags intact. Fix the webhook or registry problem and retry rather
+than changing an already published version.
 
 See [GitHub tag action](https://github.com/mathieudutour/github-tag-action) and
-[Packagist API documentation](https://packagist.org/apidoc#update-a-package).
+[GitHub webhook redelivery](https://docs.github.com/en/webhooks/testing-and-troubleshooting-webhooks/redelivering-webhooks).
