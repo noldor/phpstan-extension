@@ -34,9 +34,13 @@ parameters:
         - src
 ```
 
-Keep only existing project directories in `paths`. The PHP set is currently empty;
-the Laravel set enables the existing validation rules. Keep your existing
-Larastan configuration when analysing Laravel APIs.
+Keep only existing project directories in `paths`. The PHP set checks reference
+parameters, exception translation and mandatory JSON error flags. Its collection
+and DTO checks require explicit owner/DTO scopes; see the
+[rule documentation](docs/README.md).
+The Laravel set also enables validation placement checks and adds infrastructure
+APIs to the DTO configuration. Keep your existing Larastan configuration when
+analysing Laravel APIs.
 
 The sets are opt-in. Existing `src/rules.neon` includes remain supported and
 load the Laravel set.

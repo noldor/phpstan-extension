@@ -1,0 +1,44 @@
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-dto-infrastructure
+    paths:
+        - Calls.php
+
+services:
+    dtoScope:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes:
+                - DtoInfrastructure\Contracts\DataTransferObject
+                - DtoInfrastructure\Data\ExplicitData
+            namespaces:
+                - DtoInfrastructure\Scoped
+
+    dtoInfrastructureUsage:
+        class: Noldors\PHPStan\RestrictedUsage\DtoInfrastructureUsageExtension
+        arguments:
+            dtoScope: @dtoScope
+            forbiddenMethods:
+                -
+                    class: '\DtoInfrastructure\Infrastructure\DATABASE'
+                    methods: [QUERY]
+                -
+                    class: DtoInfrastructure\Contracts\Gateway
+                    methods: [dispatch]
+                -
+                    class: DtoInfrastructure\Infrastructure\Network
+                    methods: [send]
+                -
+                    class: DtoInfrastructure\Infrastructure\Filesystem
+                    methods: ['*']
+                -
+                    class: DtoInfrastructure\Infrastructure\Connection
+                    methods: [__construct]
+                -
+                    class: PDO
+                    methods: ['*']
+            forbiddenFunctions:
+                - '\FILE_GET_CONTENTS'
+        tags:
+            - phpstan.restrictedMethodUsageExtension
+            - phpstan.restrictedFunctionUsageExtension

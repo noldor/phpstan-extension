@@ -1,0 +1,12 @@
+includes:
+    - clean-code.neon
+
+parameters:
+    noldors:
+        mutableCollections:
+            owners: [Noldors\PHPStan\Tests\Fixtures\CleanCodeConsumer\Order]
+            types: [Noldors\PHPStan\Tests\Fixtures\CleanCodeConsumer\MutableBag]
+        dto:
+            classes:
+                - Noldors\PHPStan\Tests\Fixtures\CleanCodeConsumer\DocumentData
+                - Noldors\PHPStan\Tests\Fixtures\CleanCodeConsumer\LaravelData

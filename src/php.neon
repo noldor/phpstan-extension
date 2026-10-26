@@ -1,2 +1,94 @@
-# Framework-independent PHP rules. No custom rules are registered yet.
-services: []
+parameters:
+    noldors:
+        mutableCollections:
+            owners: []
+            namespaces: []
+            types:
+                - Illuminate\Support\Collection
+                - Doctrine\Common\Collections\Collection
+        dto:
+            classes: []
+            namespaces: []
+            forbiddenMethods:
+                - {class: PDO, methods: ['*']}
+                - {class: PDOStatement, methods: ['*']}
+                - {class: Psr\Http\Client\ClientInterface, methods: [sendRequest]}
+                - {class: Psr\SimpleCache\CacheInterface, methods: ['*']}
+                - {class: Psr\Log\LoggerInterface, methods: ['*']}
+            forbiddenFunctions:
+                - file_get_contents
+                - file_put_contents
+                - fopen
+                - fread
+                - fwrite
+                - unlink
+                - mkdir
+                - rmdir
+                - rename
+                - copy
+                - curl_exec
+                - curl_multi_exec
+                - exec
+                - shell_exec
+                - system
+                - passthru
+                - mail
+
+parametersSchema:
+    noldors: structure([
+        ?allowedValidationPaths: listOf(string()),
+        mutableCollections: structure([
+            owners: listOf(string()),
+            namespaces: listOf(string()),
+            types: listOf(string())
+        ]),
+        dto: structure([
+            classes: listOf(string()),
+            namespaces: listOf(string()),
+            forbiddenMethods: listOf(structure([
+                class: string(),
+                methods: listOf(string())
+            ])),
+            forbiddenFunctions: listOf(string())
+        ])
+    ])
+
+services:
+    noldors.collectionOwners:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.mutableCollections.owners%
+            namespaces: %noldors.mutableCollections.namespaces%
+        autowired: false
+    noldors.dtoScope:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.dto.classes%
+            namespaces: %noldors.dto.namespaces%
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\NoReferenceParameterRule
+        arguments:
+            ownedPaths: %paths%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\PreservePreviousExceptionRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\JsonThrowOnErrorRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\MutableCollectionExposureRule
+        arguments:
+            owners: @noldors.collectionOwners
+            mutableCollectionTypes: %noldors.mutableCollections.types%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\RestrictedUsage\DtoInfrastructureUsageExtension
+        arguments:
+            dtoScope: @noldors.dtoScope
+            forbiddenMethods: %noldors.dto.forbiddenMethods%
+            forbiddenFunctions: %noldors.dto.forbiddenFunctions%
+        tags:
+            - phpstan.restrictedMethodUsageExtension
+            - phpstan.restrictedFunctionUsageExtension

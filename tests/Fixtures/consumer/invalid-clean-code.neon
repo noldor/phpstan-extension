@@ -1,0 +1,7 @@
+includes:
+    - clean-code.neon
+
+parameters:
+    noldors:
+        mutableCollections:
+            owners: wrong-type

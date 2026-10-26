@@ -11,11 +11,23 @@ parameters:
             - app/Providers
             - app/Rules
             - tests
-
-parametersSchema:
-    noldors: structure([
-        allowedValidationPaths: listOf(string())
-    ])
+        dto:
+            forbiddenMethods:
+                - {class: Illuminate\Support\Facades\DB, methods: ['*']}
+                - {class: Illuminate\Database\ConnectionInterface, methods: ['*']}
+                - {class: Illuminate\Database\Query\Builder, methods: ['*']}
+                - {class: Illuminate\Database\Eloquent\Builder, methods: ['*']}
+                - {class: Illuminate\Database\Eloquent\Model, methods: [save, saveOrFail, delete, deleteOrFail, forceDelete, refresh]}
+                - {class: Illuminate\Http\Client\Factory, methods: ['*']}
+                - {class: Illuminate\Http\Client\PendingRequest, methods: ['*']}
+                - {class: Illuminate\Contracts\Bus\Dispatcher, methods: ['*']}
+                - {class: Illuminate\Contracts\Events\Dispatcher, methods: ['*']}
+                - {class: Illuminate\Contracts\Filesystem\Filesystem, methods: ['*']}
+                - {class: Illuminate\Contracts\Cache\Repository, methods: ['*']}
+            forbiddenFunctions:
+                - dispatch
+                - dispatch_sync
+                - event
 
 services:
     -

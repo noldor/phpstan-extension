@@ -1,0 +1,12 @@
+includes:
+    - phpstan.neon
+
+parameters:
+    tmpDir: ../../../build/phpstan-dto-infrastructure-disabled
+
+services:
+    dtoScope:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes!: []
+            namespaces!: []
