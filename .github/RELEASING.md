@@ -6,7 +6,8 @@
 2. Complete independent review, push the task branch and open a PR into `master`.
 3. Use Conventional Commits for branch commits and the PR title, then use an ordinary merge commit. Required GitHub
    Actions checks are `Quality` and `PR title`; all review threads must be resolved.
-   Keep the branch up to date with `master`. Merging remains a human decision.
+   Keep the branch up to date with `master`. Follow the workspace `AGENTS.md`
+   policy for enabling auto-merge immediately after opening the PR.
 4. After merge, Actions rechecks the resulting `master` commit. Only a successful
    quality job can start the release job, which creates an immutable tag. GitHub
    sends a signed push webhook to Packagist, and Actions waits for Packagist to
@@ -41,10 +42,11 @@ This creates the base needed for branch-based development without placing the
 implementation directly on `master`. Never bypass existing protection rules to
 seed a repository that already has history.
 
-The first PR requires the user's merge authorization. Packagist cannot register
-the default branch until that merge puts `composer.json` on `master`. The release
-preflight stops before tagging while the package is unregistered. After the
-first merge, register the package, configure and verify its GitHub webhook, then
+The workspace publication and auto-merge policy also applies to the first PR.
+Packagist cannot register the default branch until that merge puts
+`composer.json` on `master`. The release preflight stops before tagging while
+the package is unregistered. After the first merge, register the package,
+configure and verify its GitHub webhook, then
 dispatch the workflow on `master` to create `v0.0.1`. Later merges use the normal
 automatic release path.
 
