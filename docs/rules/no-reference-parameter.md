@@ -46,6 +46,17 @@ implementation parameters that expand its positions. A concrete parent's
 constructor does not impose its signature on a child constructor; an abstract
 constructor or interface contract can do so.
 
+PHP's native stream-wrapper callback is also an external contract without an
+interface or parent class. The fourth parameter of a public, non-static
+`stream_open()` method is accepted because PHP requires `&$opened_path` there.
+Method names are matched case-insensitively, as PHP does. Other reference
+parameters on that method, unrelated methods, non-public/static methods and
+same-named functions remain checked. This exception recognizes the native
+callback declaration; it does not require or infer a `stream_wrapper_register()`
+call elsewhere in the project.
+
+See the [PHP stream-open contract](https://www.php.net/manual/en/streamwrapper.stream-open.php).
+
 Closures and arrow functions are outside this rule's declaration scope. This
 preserves anonymous callbacks used by external APIs. Named callbacks are treated
 as owned named declarations; the rule does not infer external callback contracts

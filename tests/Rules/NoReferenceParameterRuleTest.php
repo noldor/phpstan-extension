@@ -14,6 +14,20 @@ final class NoReferenceParameterRuleTest extends RuleTestCase
 {
     private bool $ownContract = false;
 
+    public function testPreservesOnlyTheNativeStreamOpenReferenceParameter(): void
+    {
+        $this->analyse([__DIR__ . '/../Fixtures/CleanCode/StreamWrapperReferenceParameters.php'], [
+            ['Return results instead of passing $path by reference in an owned API.', 25],
+            ['Return results instead of passing $mode by reference in an owned API.', 25],
+            ['Return results instead of passing $options by reference in an owned API.', 25],
+            ['Return results instead of passing $extra by reference in an owned API.', 25],
+            ['Return results instead of passing $value by reference in an owned API.', 30],
+            ['Return results instead of passing $openedPath by reference in an owned API.', 35],
+            ['Return results instead of passing $openedPath by reference in an owned API.', 43],
+            ['Return results instead of passing $openedPath by reference in an owned API.', 49],
+        ]);
+    }
+
     public function testPreservesExternalVariadicReferenceRequirementsAtExpandedPositions(): void
     {
         $this->analyse([__DIR__ . '/../Fixtures/CleanCode/ExpandedReferenceParameters.php'], [
@@ -63,6 +77,7 @@ final class NoReferenceParameterRuleTest extends RuleTestCase
     {
         return new NoReferenceParameterRule(self::getFileHelper(), [
             __DIR__ . '/../Fixtures/CleanCode/ReferenceParameters.php',
+            __DIR__ . '/../Fixtures/CleanCode/StreamWrapperReferenceParameters.php',
             __DIR__ . '/../Fixtures/CleanCode/InheritedReferenceParameters.php',
             __DIR__ . '/../Fixtures/CleanCode/ExpandedReferenceParameters.php',
             ...($this->ownContract ? [__DIR__ . '/../Fixtures/CleanCode/ExternalReferenceContract.php'] : []),

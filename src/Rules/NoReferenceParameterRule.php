@@ -62,6 +62,9 @@ final class NoReferenceParameterRule implements Rule
 
     private function requiresExternalReference(Scope $scope, Node\Stmt\ClassMethod $method, int $index): bool
     {
+        if (3 === $index && $method->isPublic() && ! $method->isStatic() && 'stream_open' === \mb_strtolower($method->name->toString())) {
+            return true;
+        }
         $class = $scope->getClassReflection();
 
         if (null === $class) {
