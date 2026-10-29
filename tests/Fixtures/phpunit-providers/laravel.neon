@@ -1,0 +1,9 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [LaravelCases.php]
+    bootstrapFiles: [../laravel-contracts/bootstrap.php]
+    tmpDir: ../../../build/phpunit-providers-laravel

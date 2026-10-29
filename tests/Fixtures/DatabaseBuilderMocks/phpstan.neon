@@ -1,0 +1,7 @@
+parameters:
+    fileExtensions:
+        - php
+        - stub
+    scanFiles:
+        - Support.php
+        - Mockery.stub

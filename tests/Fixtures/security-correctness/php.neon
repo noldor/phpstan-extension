@@ -1,0 +1,7 @@
+includes:
+    - ../../../src/php.neon
+parameters:
+    level: null
+    customRulesetUsed: true
+    paths: [Probe.php]
+    tmpDir: ../../../build/security-correctness/php
