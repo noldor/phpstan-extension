@@ -1,0 +1,15 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    paths: [Declarations.php]
+    bootstrapFiles: [bootstrap.php]
+    tmpDir: ../../../build/laravel-contracts-php
+    noldors:
+        laravel:
+            jobs:
+                namespaces: [ContractFixtures\Jobs]
+            events:
+                namespaces: [ContractFixtures\Events]

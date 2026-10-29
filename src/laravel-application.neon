@@ -1,0 +1,145 @@
+services:
+    noldors.laravel.useCases:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.useCases.classes%
+            namespaces: %noldors.laravel.useCases.namespaces%
+            excludedClasses: %noldors.laravel.useCases.excludedClasses%
+            excludedNamespaces: %noldors.laravel.useCases.excludedNamespaces%
+        autowired: false
+    noldors.laravel.events:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.events.classes%
+            namespaces: %noldors.laravel.events.namespaces%
+            excludedClasses: %noldors.laravel.events.excludedClasses%
+            excludedNamespaces: %noldors.laravel.events.excludedNamespaces%
+        autowired: false
+    noldors.laravel.jobs:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.jobs.classes%
+            namespaces: %noldors.laravel.jobs.namespaces%
+            excludedClasses: %noldors.laravel.jobs.excludedClasses%
+            excludedNamespaces: %noldors.laravel.jobs.excludedNamespaces%
+        autowired: false
+    noldors.laravel.listeners:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.listeners.classes%
+            namespaces: %noldors.laravel.listeners.namespaces%
+            excludedClasses: %noldors.laravel.listeners.excludedClasses%
+            excludedNamespaces: %noldors.laravel.listeners.excludedNamespaces%
+        autowired: false
+    noldors.laravel.notifications:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.notifications.classes%
+            namespaces: %noldors.laravel.notifications.namespaces%
+            excludedClasses: %noldors.laravel.notifications.excludedClasses%
+            excludedNamespaces: %noldors.laravel.notifications.excludedNamespaces%
+        autowired: false
+    noldors.laravel.observers:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.observers.classes%
+            namespaces: %noldors.laravel.observers.namespaces%
+            excludedClasses: %noldors.laravel.observers.excludedClasses%
+            excludedNamespaces: %noldors.laravel.observers.excludedNamespaces%
+        autowired: false
+    noldors.laravel.validators:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.validators.classes%
+            namespaces: %noldors.laravel.validators.namespaces%
+            excludedClasses: %noldors.laravel.validators.excludedClasses%
+            excludedNamespaces: %noldors.laravel.validators.excludedNamespaces%
+        autowired: false
+    noldors.laravel.softDeleteModels:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.softDeleteModels.classes%
+            namespaces: %noldors.laravel.softDeleteModels.namespaces%
+            excludedClasses: %noldors.laravel.softDeleteModels.excludedClasses%
+            excludedNamespaces: %noldors.laravel.softDeleteModels.excludedNamespaces%
+        autowired: false
+    noldors.laravel.bulkLifecycleOperations:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.bulkLifecycleOperations.classes%
+            namespaces: %noldors.laravel.bulkLifecycleOperations.namespaces%
+            excludedClasses: %noldors.laravel.bulkLifecycleOperations.excludedClasses%
+            excludedNamespaces: %noldors.laravel.bulkLifecycleOperations.excludedNamespaces%
+        autowired: false
+    noldors.laravel.queuePolicy:
+        class: Noldors\PHPStan\Laravel\QueuePolicy
+        arguments:
+            jobs: @noldors.laravel.jobs
+            observers: @noldors.laravel.observers
+    -
+        class: Noldors\PHPStan\Rules\LaravelUseCaseRule
+        arguments:
+            useCases: @noldors.laravel.useCases
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelUseCaseExceptionRule
+        arguments:
+            useCases: @noldors.laravel.useCases
+            validationExceptions: %noldors.laravel.validationExceptions%
+            errorBagClasses: %noldors.laravel.errorBagClasses%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueContractRule
+        arguments:
+            policy: @noldors.laravel.queuePolicy
+            listeners: @noldors.laravel.listeners
+            notifications: @noldors.laravel.notifications
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueOverrideRule
+        arguments:
+            policy: @noldors.laravel.queuePolicy
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelEventContractRule
+        arguments:
+            events: @noldors.laravel.events
+            listeners: @noldors.laravel.listeners
+            policy: @noldors.laravel.queuePolicy
+            completedEventSuffixes: %noldors.laravel.completedEventSuffixes%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelJobPayloadRule
+        arguments:
+            policy: @noldors.laravel.queuePolicy
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelBulkLifecycleRule
+        arguments:
+            models: @noldors.laravel.softDeleteModels
+            bulkOperations: @noldors.laravel.bulkLifecycleOperations
+            softDeleteTraits: %noldors.laravel.softDeleteTraits%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\RestrictedUsage\LaravelUseCaseValidationExtension
+        arguments:
+            useCases: @noldors.laravel.useCases
+            validationExceptions: %noldors.laravel.validationExceptions%
+        tags: [phpstan.restrictedMethodUsageExtension]
+    -
+        class: Noldors\PHPStan\RestrictedUsage\LaravelValidationSideEffectsExtension
+        arguments:
+            validators: @noldors.laravel.validators
+            forbiddenMethods: %noldors.laravel.validationSideEffects.forbiddenMethods%
+            forbiddenFunctions: %noldors.laravel.validationSideEffects.forbiddenFunctions%
+        tags: [phpstan.restrictedMethodUsageExtension, phpstan.restrictedFunctionUsageExtension]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueOverrideCallableRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Laravel\JobPayloadTypes
+    -
+        class: Noldors\PHPStan\Rules\LaravelJobPayloadAssignmentRule
+        arguments:
+            policy: @noldors.laravel.queuePolicy
+        tags: [phpstan.rules.rule]

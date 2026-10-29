@@ -34,6 +34,15 @@ final class ClassScopeTest extends PHPStanTestCase
         $this->assertTrue(new ClassScope([Traversable::class])->contains($class));
     }
 
+    public function testExclusionsTakePrecedenceOverIncludedClassAndNamespace(): void
+    {
+        $class = self::createReflectionProvider()->getClass(self::class);
+
+        $this->assertFalse(new ClassScope([self::class], excludedClasses: [PHPStanTestCase::class])->contains($class));
+        $this->assertFalse(new ClassScope(namespaces: ['Noldors\\PHPStan'], excludedNamespaces: ['Noldors\\PHPStan\\Tests'])->contains($class));
+        $this->assertTrue(new ClassScope([self::class], excludedNamespaces: ['Noldors\\PHPStan\\Test'])->contains($class));
+    }
+
     public function testNamespaceMatchingRespectsSegmentBoundaries(): void
     {
         $class = self::createReflectionProvider()->getClass(self::class);
