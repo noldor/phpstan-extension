@@ -18,11 +18,11 @@ final class FluentBuilderRules
     ];
 
     private const array NUMERIC = [
-        'between' => ['between'], 'decimal' => ['decimal'], 'different' => ['different'], 'digits' => ['digits'],
-        'digitsbetween' => ['digits_between'], 'greaterthan' => ['gt'], 'greaterthanorequalto' => ['gte'],
+        'between' => ['between'], 'decimal' => ['decimal'], 'different' => ['different'], 'digits' => ['integer', 'digits'],
+        'digitsbetween' => ['integer', 'digits_between'], 'greaterthan' => ['gt'], 'greaterthanorequalto' => ['gte'],
         'integer' => ['integer'], 'lessthan' => ['lt'], 'lessthanorequalto' => ['lte'], 'max' => ['max'],
         'maxdigits' => ['max_digits'], 'min' => ['min'], 'mindigits' => ['min_digits'],
-        'multipleof' => ['multiple_of'], 'same' => ['same'], 'exactly' => ['size'],
+        'multipleof' => ['multiple_of'], 'same' => ['same'], 'exactly' => ['integer', 'size'],
     ];
 
     private const array DATE = [

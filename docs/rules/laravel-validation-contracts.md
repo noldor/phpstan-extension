@@ -104,6 +104,23 @@ run their internal validator in a separate rule context; an outer `numeric` or
 `bail` declaration does not change that internal context. No rule object or
 application callback is executed.
 
+Implicit native constraints are included: numeric `digits(...)`,
+`digitsBetween(...)` and `exactly(...)` also require an `integer` message.
+Empty tokens in string rule definitions are ignored, matching Laravel.
+
+Native rule objects use Laravel's actual class-key message contract. For
+`Can`, `Enum` and `AnyOf`, a message such as
+`'status.' . Illuminate\Validation\Rules\Enum::class` covers every failing input.
+Laravel also accepts the short `status.enum` alias when its message type is not
+`file`; the check accepts that alias when numeric/array rules, or `bail` with an
+earlier string rule, guarantee a non-file type. Otherwise the full class key
+covers the possible file branch. An explicit full class-key override for `File`,
+`ImageFile`, `Email` or `Password` also covers all that object's nested failures;
+individual nested messages remain a supported alternative. Generic native
+class keys and generic `password.mixed`/`password.letters`/`password.numbers`/
+`password.symbols`/`password.uncompromised` keys are rejected for Lighthouse
+validators. Add the public field prefix.
+
 Nested field/rule message maps and Laravel's size-specific submaps are accepted
 only when they cover the branches that can fail. A direct `field.max` message
 covers every branch. A numeric rule can use `field.max.numeric`; array/list rules
@@ -113,7 +130,13 @@ string/file constraint guarantee a single branch. A `string` rule alone does not
 prevent a later size rule from failing on an uploaded file. An arbitrary
 descendant such as `field.required.unused` never covers `field.required`.
 
-Literal empty and null messages do not establish coverage. Translation calls
+Comparisons `gt`, `gte`, `lt` and `lte` can select a numeric message even without
+an explicit numeric rule. Their submaps must include that possible branch unless
+`bail` and an earlier file/array constraint exclude numeric input. Laravel resets
+its numeric comparison state before the next built-in rule, so a comparison does
+not add a numeric branch to another `min`, `max`, `size` or `between` rule.
+
+Literal empty, null and false messages do not establish coverage. Translation calls
 are accepted without loading or verifying the runtime translation catalog.
 Wildcard matching follows Laravel's single-path-segment message matching; a
 concrete index message does not establish coverage for every element of a

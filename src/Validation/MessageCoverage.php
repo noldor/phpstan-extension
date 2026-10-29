@@ -43,18 +43,22 @@ final class MessageCoverage
      *
      * @return list<string>
      */
-    private function missingInContext(string $field, RuleSet $set, array $messages): array
+    private function missingInContext(string $field, RuleSet $set, array $messages, RuleSet|null $parent = null): array
     {
+        if (null !== $set->override && $this->nativeMessage($field, $set->override, $parent ?? $set, $messages)) {
+            return [];
+        }
         $missing = [];
+        $nestedClasses = \array_map(static fn (RuleSet $nested): string|null => $nested->override, $set->nested);
 
         foreach ($set->rules as $rule) {
-            if ($this->names->fails($rule) && ! $this->hasMessage($field . '.' . $rule, $rule, $set, $messages)) {
+            if (! \in_array($rule, $nestedClasses, true) && $this->names->fails($rule) && ! $this->hasMessage($field . '.' . $rule, $rule, $set, $messages)) {
                 $missing[] = $field . '.' . $rule;
             }
         }
 
         foreach ($set->nested as $nested) {
-            $missing = [...$missing, ...$this->missingInContext($field, $nested, $messages)];
+            $missing = [...$missing, ...$this->missingInContext($field, $nested, $messages, $set)];
         }
 
         return $missing;
@@ -67,6 +71,10 @@ final class MessageCoverage
     {
         if ($this->covered($key, $messages)) {
             return true;
+        }
+
+        if (null !== $this->names->nativeAlias($rule)) {
+            return $this->nativeMessage(\mb_substr($key, 0, -\mb_strlen('.' . $rule)), $rule, $set, $messages);
         }
 
         if (! $this->branches->isSizeRule($rule)) {
@@ -85,12 +93,25 @@ final class MessageCoverage
     /**
      * @param array<string, Type> $messages
      */
+    private function nativeMessage(string $field, string $class, RuleSet $set, array $messages): bool
+    {
+        if ($this->covered($field . '.' . $class, $messages)) {
+            return true;
+        }
+        $alias = $this->names->nativeAlias($class);
+
+        return null !== $alias && ! \in_array('file', $this->branches->forRule($set, $class), true) && $this->covered($field . '.' . $alias, $messages);
+    }
+
+    /**
+     * @param array<string, Type> $messages
+     */
     private function covered(string $key, array $messages): bool
     {
         foreach ($messages as $pattern => $type) {
-            $strings = $type->getConstantStrings();
+            $values = $type->getConstantScalarValues();
 
-            if ($type->isNull()->yes() || 1 === \count($strings) && '' === $strings[0]->getValue()) {
+            if ($type->isNull()->yes() || [false] === $values || [''] === $values) {
                 continue;
             }
 

@@ -49,7 +49,7 @@ final class FileBuilderRules
         }
         $size = $this->size($minimum, $maximum);
 
-        return new RuleSet(nested: [$rules->append($extensions)->append(new RuleSet($size))->append($encoding)->append($custom)]);
+        return $rules->append($extensions)->append(new RuleSet($size))->append($encoding)->append($custom)->asNativeObject('Illuminate\\Validation\\Rules\\' . $class);
     }
 
     /**

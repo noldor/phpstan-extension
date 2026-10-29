@@ -24,6 +24,13 @@ final class RuleNames
 
     private const array OBJECT_FAILURES = ['can', 'enum', 'any_of', 'password.mixed', 'password.letters', 'password.numbers', 'password.symbols', 'password.uncompromised'];
 
+    private const array NATIVE_OBJECTS = [
+        'Illuminate\\Validation\\Rules\\Can' => 'can', 'Illuminate\\Validation\\Rules\\Enum' => 'enum',
+        'Illuminate\\Validation\\Rules\\AnyOf' => 'any_of', 'Illuminate\\Validation\\Rules\\File' => 'file',
+        'Illuminate\\Validation\\Rules\\ImageFile' => 'image_file', 'Illuminate\\Validation\\Rules\\Email' => 'email',
+        'Illuminate\\Validation\\Rules\\Password' => 'password',
+    ];
+
     public function __construct(
         private readonly ReflectionProvider $reflection,
     ) {}
@@ -71,8 +78,21 @@ final class RuleNames
         return null !== $this->canonicalName($name);
     }
 
+    public function nativeAlias(string $class): string|null
+    {
+        return self::NATIVE_OBJECTS[$class] ?? null;
+    }
+
     private function canonicalName(string $name): string|null
     {
+        if ('' === $name) {
+            return null;
+        }
+
+        if (isset(self::NATIVE_OBJECTS[$name])) {
+            return $name;
+        }
+
         if (\in_array(\mb_strtolower($name), [...self::OBJECT_FAILURES, ...self::CONTROLS], true)) {
             return \mb_strtolower($name);
         }
@@ -124,6 +144,10 @@ final class RuleNames
         }
 
         $class = $classes[0];
+
+        if (isset(self::NATIVE_OBJECTS[$class->getName()])) {
+            return [$class->getName()];
+        }
 
         foreach (self::BUILDERS as $builder) {
             if (0 === \strcasecmp($class->getName(), 'Illuminate\\Validation\\Rules\\' . $builder)) {

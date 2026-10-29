@@ -24,8 +24,8 @@ final class BuiltinBoundaries
 
 final class NestedContext
 {
-    public function rules(): array { return ['upload' => ['numeric', File::types(['txt'])->max(1)]]; }
-    public function messages(): array { return ['upload.numeric' => 'Number.', 'upload.file' => 'File.', 'upload.mimes' => 'Text file.', 'upload.max' => ['numeric' => 'Too large.']]; }
+    public function rules(): array { return ['upload' => ['numeric', File::image()->max(1)]]; }
+    public function messages(): array { return ['upload.numeric' => 'Number.', 'upload.file' => 'File.', 'upload.image' => 'Image.', 'upload.max' => ['numeric' => 'Too large.']]; }
 }
 
 final class RuleListComposition

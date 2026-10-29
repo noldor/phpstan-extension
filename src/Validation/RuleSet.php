@@ -14,10 +14,16 @@ final class RuleSet
         public readonly array $rules = [],
         public readonly array $nested = [],
         public readonly bool $unknown = false,
+        public readonly string|null $override = null,
     ) {}
 
     public function append(self $other): self
     {
-        return new self([...$this->rules, ...$other->rules], [...$this->nested, ...$other->nested], $this->unknown || $other->unknown);
+        return new self([...$this->rules, ...$other->rules], [...$this->nested, ...$other->nested], $this->unknown || $other->unknown, $this->override);
+    }
+
+    public function asNativeObject(string $class): self
+    {
+        return new self([$class], nested: [new self($this->rules, $this->nested, $this->unknown, $class)]);
     }
 }

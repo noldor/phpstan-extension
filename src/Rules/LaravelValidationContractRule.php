@@ -144,7 +144,7 @@ final class LaravelValidationContractRule implements Rule
         $errors = [];
 
         foreach (\array_keys($messages ?? []) as $key) {
-            if (! \str_contains($key, '.') && $this->names->isBuiltin($key)) {
+            if ($this->names->isBuiltin($key)) {
                 $errors[] = $this->error('Use a field-specific Lighthouse message key instead of the generic rule key ' . $key . '.', 'lighthouseMessageKey');
             }
         }

@@ -47,6 +47,6 @@ final class NestedBuilderRules
             }
         }
 
-        return new RuleSet(nested: [$rules->append($maximum)->append($custom)->append($complexity)]);
+        return $rules->append($maximum)->append($custom)->append($complexity)->asNativeObject('Illuminate\\Validation\\Rules\\' . $class);
     }
 }

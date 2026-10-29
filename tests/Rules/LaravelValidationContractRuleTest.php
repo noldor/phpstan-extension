@@ -65,22 +65,49 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
             'accepted.accepted', 'activeUrl.active_url', 'base64.base64', 'boolean.boolean', 'declined.declined',
             'filled.filled', 'hexColor.hex_color', 'json.json', 'list.list', 'macAddress.mac_address',
             'missing.missing', 'present.present', 'prohibited.prohibited', 'required.required', 'ulid.ulid',
-            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.can', 'confirmed.confirmed', 'contains.contains',
+            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.Illuminate\\Validation\\Rules\\Can', 'confirmed.confirmed', 'contains.contains',
             'currentPassword.current_password', 'declinedIf.declined_if', 'distinct.distinct', 'doesntContain.doesnt_contain',
-            'enum.enum', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
+            'enum.Illuminate\\Validation\\Rules\\Enum', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
             'missingIf.missing_if', 'missingUnless.missing_unless', 'missingWith.missing_with', 'missingWithAll.missing_with_all',
             'notIn.not_in', 'notRegex.not_regex', 'presentIf.present_if', 'presentUnless.present_unless',
             'presentWith.present_with', 'presentWithAll.present_with_all', 'prohibitedIfAccepted.prohibited_if_accepted',
             'prohibitedIfDeclined.prohibited_if_declined', 'prohibits.prohibits', 'regex.regex', 'requiredArrayKeys.required_array_keys',
             'requiredIfAccepted.required_if_accepted', 'requiredIfDeclined.required_if_declined', 'requiredWith.required_with',
             'requiredWithAll.required_with_all', 'requiredWithout.required_without', 'requiredWithoutAll.required_without_all',
-            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.any_of',
+            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.Illuminate\\Validation\\Rules\\AnyOf',
         ]);
     }
 
     public function testBuiltinBoundariesPreserveNativeCompositionAndNestedContexts(): void
     {
         $this->assertMissingPairs('BuiltinBoundaries.php', ['upload.max', 'mergedBuiltin.min', 'conditional.min']);
+    }
+
+    public function testNativeEdgeCasesRetainImplicitRulesAndRejectEmptyMessages(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NativeEdgeCases.php']);
+        $this->assertSame([
+            'Provide an explicit public validation message for digits.integer.',
+            'Provide an explicit public validation message for range.integer.',
+            'Provide an explicit public validation message for exact.integer.',
+            'Provide an explicit public validation message for name.required.',
+            ...\array_map(static fn (string $rule): string => 'Use a field-specific Lighthouse message key instead of the generic rule key password.' . $rule . '.', ['mixed', 'letters', 'numbers', 'symbols', 'uncompromised']),
+        ], \array_map(static fn ($error): string => $error->getMessage(), $errors));
+    }
+
+    public function testComparisonsCanSelectNumericMessagesWithoutChangingOtherSizeConstraints(): void
+    {
+        $this->assertMissingPairs('ComparisonSizeBranches.php', ['gt.gt', 'gte.gte', 'lt.lt', 'lte.lte']);
+    }
+
+    public function testNativeObjectOverridesFollowTheActualLaravelClassKeyContract(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NativeObjectMessages.php']);
+        $this->assertSame([
+            'Provide an explicit public validation message for unsafe.Illuminate\\Validation\\Rules\\Enum.',
+            'Use a field-specific Lighthouse message key instead of the generic rule key Illuminate\\Validation\\Rules\\Enum.',
+            'Use a field-specific Lighthouse message key instead of the generic rule key Illuminate\\Validation\\Rules\\File.',
+        ], \array_map(static fn ($error): string => $error->getMessage(), $errors));
     }
 
     /**
