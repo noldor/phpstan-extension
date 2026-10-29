@@ -80,6 +80,20 @@ final class LaravelValidationRuntimeMessagesTest extends TestCase
         });
     }
 
+    public function testBailedNativeFilesExposeOnlyFileSizeFailuresAfterSuccessfulValidation(): void
+    {
+        $this->withNativeFactory(function (Factory $factory): void {
+            foreach (['max:0' => 'max', 'gt:1000000' => 'gt'] as $constraint => $rule) {
+                $rules = ['upload' => ['bail', Rule::file(), $constraint]];
+                $messages = ['upload.' . \Illuminate\Validation\Rules\File::class => 'CLASS invalid', 'upload.' . $rule => ['file' => 'CUSTOM size file']];
+                $file = $factory->make(['upload' => new File(__FILE__)], $rules, $messages);
+                $this->assertSame(['CUSTOM size file'], $file->errors()->get('upload'));
+                $text = $factory->make(['upload' => 'text'], $rules, $messages);
+                $this->assertSame(['CLASS invalid'], $text->errors()->get('upload'));
+            }
+        });
+    }
+
     /**
      * @param Closure(Factory): void $assert
      */

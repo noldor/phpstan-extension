@@ -129,6 +129,8 @@ file, so provide both `string` and `file` entries unless `bail` and an earlier
 string/file constraint guarantee a single branch. A `string` rule alone does not
 prevent a later size rule from failing on an uploaded file. An arbitrary
 descendant such as `field.required.unused` never covers `field.required`.
+Earlier native `File` and `ImageFile` rules also guarantee the file branch when
+combined with `bail`.
 
 Comparisons `gt`, `gte`, `lt` and `lte` can select a numeric message even without
 an explicit numeric rule. Their submaps must include that possible branch unless

@@ -10,6 +10,8 @@ final class SizeMessageBranches
 
     private const array COMPARISONS = ['gt', 'lt', 'gte', 'lte'];
 
+    private const array FILE_RULES = ['file', 'image', 'Illuminate\\Validation\\Rules\\File', 'Illuminate\\Validation\\Rules\\ImageFile'];
+
     public function isSizeRule(string $rule): bool
     {
         return \in_array($rule, self::RULES, true);
@@ -48,7 +50,7 @@ final class SizeMessageBranches
                 return ['string'];
             }
 
-            if ([] !== \array_intersect($previous, ['file', 'image'])) {
+            if ([] !== \array_intersect($previous, self::FILE_RULES)) {
                 return ['file'];
             }
         }
@@ -64,6 +66,6 @@ final class SizeMessageBranches
         $position = \array_search($rule, $set->rules, true);
         $previous = false === $position ? [] : \array_slice($set->rules, 0, $position);
 
-        return ! \in_array('bail', $set->rules, true) || [] === \array_intersect($previous, ['file', 'image', 'array', 'list']);
+        return ! \in_array('bail', $set->rules, true) || [] === \array_intersect($previous, [...self::FILE_RULES, 'array', 'list']);
     }
 }

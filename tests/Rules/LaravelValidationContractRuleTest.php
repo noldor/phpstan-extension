@@ -110,6 +110,11 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
         ], \array_map(static fn ($error): string => $error->getMessage(), $errors));
     }
 
+    public function testBailedNativeFileGuardsNarrowOnlyLaterSizeAndComparisonFailures(): void
+    {
+        $this->assertMissingPairs('BailedNativeFiles.php', ['unguarded.max', 'unguarded.gt', 'before.max']);
+    }
+
     /**
      * @param list<string> $identifiers
      */
