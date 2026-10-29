@@ -1,0 +1,9 @@
+includes:
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [enums, OutsideEnum.php, Lighthouse.php, Dependencies.php]
+    tmpDir: ../../../build/standards-contracts
+    noldors:
+        allowedValidationPaths!: [.]

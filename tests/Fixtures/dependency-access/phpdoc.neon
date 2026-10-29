@@ -1,0 +1,9 @@
+includes:
+    - phpstan.neon
+parameters:
+    level: 6
+    paths!: [PhpDoc.php]
+    noldors:
+        laravel:
+            useCases:
+                classes: [DependencyAccess\PhpDocUseCase]

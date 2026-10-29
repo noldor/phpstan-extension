@@ -1,0 +1,9 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            validationContracts:
+                inputValidators:
+                    - {class: ValidationContractFixtures\InputBound, fields: [42]}

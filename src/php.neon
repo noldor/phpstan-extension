@@ -1,3 +1,6 @@
+includes:
+    - php-dependencies.neon
+
 parameters:
     noldors:
         disabledTlsVerification:
@@ -32,7 +35,63 @@ parameters:
             excludedClasses: []
             excludedNamespaces: []
             forbiddenTypes: [Illuminate\Database\Eloquent\Builder, Illuminate\Database\Query\Builder, Illuminate\Database\Eloquent\Relations\Relation]
+        dependencies:
+            classes: []
+            namespaces: []
+            excludedClasses: []
+            excludedNamespaces: []
+        foreignKeys:
+            paths: []
+            excludePaths: []
         laravel:
+            enums:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            enumDirectories: []
+            lighthouseValidators:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            lighthouseResolvers:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            lighthouseSubscriptions:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            useCaseTransportTypes:
+                - Symfony\Component\HttpFoundation\Request
+                - GraphQL\Type\Definition\ResolveInfo
+                - Nuwave\Lighthouse\Execution\ResolveInfo
+                - Nuwave\Lighthouse\Execution\Arguments\ArgumentSet
+                - Nuwave\Lighthouse\Execution\Arguments\Argument
+            globalActorMethods: [user, id]
+            dependencyInjection:
+                classes: []
+                namespaces: []
+                excludedClasses:
+                    - Illuminate\Database\Eloquent\Model
+                    - Illuminate\Database\Migrations\Migration
+                    - Illuminate\Support\ServiceProvider
+                    - PHPUnit\Framework\TestCase
+                excludedNamespaces: []
+                excludedPaths: [tests, database/migrations]
+                helpers: []
+                allLaravelHelpers: false
+                serviceLocatorTypes:
+                    - Illuminate\Contracts\Container\Container
+                    - Illuminate\Container\Container
+                    - Psr\Container\ContainerInterface
+                serviceLocatorMethods: [make, makeWith, get, offsetGet, getInstance, call, build, factory]
+            validationContracts:
+                relationships: []
+                inputValidators: []
             useCases:
                 classes: []
                 namespaces: []
@@ -170,6 +229,8 @@ parameters:
 
 parametersSchema:
     noldors: structure([
+        dependencies: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+        foreignKeys: structure([paths: listOf(string()), excludePaths: listOf(string())]),
         disabledTlsVerification: structure([excludePaths: listOf(string()), laravelClients: bool()]),
         fullRequestLogging: structure([
             loggerClasses: listOf(string()),
@@ -189,6 +250,15 @@ parametersSchema:
             classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), forbiddenTypes: listOf(string())
         ]),
         ?laravel: structure([
+            enums: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            enumDirectories: listOf(string()),
+            lighthouseValidators: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            lighthouseResolvers: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            lighthouseSubscriptions: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            useCaseTransportTypes: listOf(string()),
+            globalActorMethods: listOf(string()),
+            dependencyInjection: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), excludedPaths: listOf(string()), helpers: listOf(string()), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())]),
+            validationContracts: structure([relationships: listOf(structure([class: string(), fields: listOf(string())])), inputValidators: listOf(structure([class: string(), fields: listOf(string())]))]),
             useCases: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             events: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             jobs: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),

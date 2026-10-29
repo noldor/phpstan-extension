@@ -1,0 +1,27 @@
+services:
+    -
+        class: Noldors\PHPStan\Validation\ConstantSource
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+    - Noldors\PHPStan\Validation\MethodArrays
+    - Noldors\PHPStan\Validation\Paths
+    - Noldors\PHPStan\Validation\FieldOrder
+    - Noldors\PHPStan\Validation\RuleNames
+    - Noldors\PHPStan\Validation\RuleExpressions
+    - Noldors\PHPStan\Validation\RuleListItems
+    - Noldors\PHPStan\Validation\BuiltinBuilderRules
+    - Noldors\PHPStan\Validation\FluentBuilderRules
+    - Noldors\PHPStan\Validation\FileBuilderRules
+    - Noldors\PHPStan\Validation\NestedBuilderRules
+    - Noldors\PHPStan\Validation\SizeMessageBranches
+    - Noldors\PHPStan\Validation\MessageCoverage
+    -
+        class: Noldors\PHPStan\Validation\Configuration
+        arguments:
+            relationships: %noldors.laravel.validationContracts.relationships%
+            inputValidators: %noldors.laravel.validationContracts.inputValidators%
+    -
+        class: Noldors\PHPStan\Rules\LaravelValidationContractRule
+        arguments:
+            validators: @noldors.laravel.validators
+        tags: [phpstan.rules.rule]

@@ -1,0 +1,12 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            jobs:
+                namespaces: [QueueRoutingFixtures\Jobs]
+            listeners:
+                namespaces: [QueueRoutingFixtures\Listeners]
+            notifications:
+                namespaces: [QueueRoutingFixtures\Notifications]

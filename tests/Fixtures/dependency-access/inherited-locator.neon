@@ -1,0 +1,11 @@
+includes:
+    - full-set.neon
+parameters:
+    paths!: [InheritedLocator.php]
+    tmpDir: ../../../build/dependency-access-inherited-locator
+    noldors:
+        laravel:
+            useCases:
+                classes!: []
+            dependencyInjection:
+                classes!: [DependencyAccess\LookupService]

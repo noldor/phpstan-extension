@@ -1,0 +1,34 @@
+services:
+    noldors.laravel.queueRouting:
+        class: Noldors\PHPStan\Laravel\QueueRouting
+        arguments:
+            policy: @noldors.laravel.queuePolicy
+            listeners: @noldors.laravel.listeners
+            notifications: @noldors.laravel.notifications
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueRoutingDeclarationRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelExternalQueueRoutingRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Collectors\LaravelQueueProducerCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\LaravelQueueRouteCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueRouteRegistrationRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueRoutingCallableRule
+        arguments:
+            nodeType: PHPStan\Node\MethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelQueueRoutingCallableRule
+        arguments:
+            nodeType: PHPStan\Node\StaticMethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]

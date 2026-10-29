@@ -1,0 +1,20 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [Calls.php]
+    bootstrapFiles: [bootstrap.php]
+    tmpDir: ../../../build/dependency-access-full-set
+    noldors:
+        laravel:
+            useCases:
+                classes: [DependencyAccess\UseCase]
+            dependencyInjection:
+                classes:
+                    - DependencyAccess\Service
+                    - DependencyAccess\AllowedModel
+                    - DependencyAccess\AllowedMigration
+                    - DependencyAccess\AllowedProvider
+                    - DependencyAccess\AllowedTest

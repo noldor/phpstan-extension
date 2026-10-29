@@ -1,0 +1,16 @@
+includes:
+    - ../../../src/laravel-foreign-keys.neon
+
+parameters:
+    level: 0
+    paths: [foreign-keys, foreign-keys-external]
+    tmpDir: ../../../../build/foreign-keys-consumer
+    noldors:
+        foreignKeys:
+            paths: [foreign-keys]
+            excludePaths: [foreign-keys/excluded]
+
+parametersSchema:
+    noldors: structure([
+        foreignKeys: structure([paths: listOf(string()), excludePaths: listOf(string())])
+    ])

@@ -14,10 +14,10 @@ final class DispatchOperation
         $job->beforeCommit(...); // @expect laravel.queueBeforeCommit
         $job->afterCommit = false; // @expect laravel.queueBeforeCommit
         DispatchableJob::dispatch()->beforeCommit(); // @expect laravel.queueBeforeCommit
-        DispatchableJob::dispatch()->onQueue('billing')->beforeCommit(); // @expect laravel.queueBeforeCommit
+        DispatchableJob::dispatch()->onQueue('billing')->beforeCommit(); // @expect laravel.queueBeforeCommit laravel.externalQueueRoute
         dispatch(new DispatchableJob())->beforeCommit(); // @expect laravel.queueBeforeCommit
         $inherited->beforeCommit(); // @expect laravel.queueBeforeCommit
-        \ContractFixtures\Jobs\InheritedCompositeJob::dispatch()->onQueue('billing')->beforeCommit(); // @expect laravel.queueBeforeCommit
+        \ContractFixtures\Jobs\InheritedCompositeJob::dispatch()->onQueue('billing')->beforeCommit(); // @expect laravel.queueBeforeCommit laravel.externalQueueRoute
         $caseSensitive->AFTERCOMMIT = false;
         $job->other()->beforeCommit();
         \ContractFixtures\Jobs\CustomPendingJob::dispatch()->beforeCommit();

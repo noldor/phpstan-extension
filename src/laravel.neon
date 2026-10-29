@@ -1,6 +1,11 @@
 includes:
     - php.neon
     - laravel-application.neon
+    - laravel-standards.neon
+    - laravel-foreign-keys.neon
+    - laravel-queue-routing.neon
+    - laravel-dependency-access.neon
+    - laravel-validation-contracts.neon
 
 parameters:
     noldors:

@@ -1,0 +1,21 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            validationContracts:
+                relationships:
+                    - {class: ValidationContractFixtures\WrongFields, fields: [items, tags]}
+                    - {class: ValidationContractFixtures\OrdinaryAfterRelationship, fields: [items]}
+                    - {class: ValidationContractFixtures\ParentAfterChild, fields: [items]}
+                    - {class: ValidationContractFixtures\SplitRelationship, fields: [items, tags]}
+                    - {class: ValidationContractFixtures\Valid, fields: [items]}
+                inputValidators:
+                    - {class: ValidationContractFixtures\InputBound, fields: [ownerId]}
+                    - {class: ValidationContractFixtures\ActualNestedInput, fields: [input]}
+
+services:
+    noldors.laravel.validators:
+        arguments:
+            namespaces: [ValidationContractFixtures]
