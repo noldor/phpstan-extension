@@ -31,6 +31,12 @@ parameters:
 
 services:
     -
+        class: Noldors\PHPStan\Rules\LaravelPostgresInstantRule
+        arguments:
+            paths: %noldors.postgresqlInstants.paths%
+            excludePaths: %noldors.postgresqlInstants.excludePaths%
+        tags: [phpstan.rules.rule]
+    -
         class: Noldors\PHPStan\Rules\LaravelValidationLocationRule
         arguments:
             allowedValidationPaths: %noldors.allowedValidationPaths%

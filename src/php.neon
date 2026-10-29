@@ -1,5 +1,8 @@
 parameters:
     noldors:
+        postgresqlInstants:
+            paths: []
+            excludePaths: []
         mutableCollections:
             owners: []
             namespaces: []
@@ -37,6 +40,10 @@ parameters:
 parametersSchema:
     noldors: structure([
         ?allowedValidationPaths: listOf(string()),
+        postgresqlInstants: structure([
+            paths: listOf(string()),
+            excludePaths: listOf(string())
+        ]),
         mutableCollections: structure([
             owners: listOf(string()),
             namespaces: listOf(string()),

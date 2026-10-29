@@ -39,8 +39,10 @@ parameters, exception translation and mandatory JSON error flags. Its collection
 and DTO checks require explicit owner/DTO scopes; see the
 [rule documentation](docs/README.md).
 The Laravel set also enables validation placement checks and adds infrastructure
-APIs to the DTO configuration. Keep your existing Larastan configuration when
-analysing Laravel APIs.
+APIs to the DTO configuration. Its PostgreSQL instant check requires explicitly
+configured application-owned paths; see the
+[rule documentation](docs/rules/laravel-postgres-instant.md). Keep your existing
+Larastan configuration when analysing Laravel APIs.
 
 The sets are opt-in. Existing `src/rules.neon` includes remain supported and
 load the Laravel set.
