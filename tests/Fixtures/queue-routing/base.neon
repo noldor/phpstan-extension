@@ -1,0 +1,10 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/laravel.neon
+    - ../../../src/laravel-queue-routing.neon
+
+parameters:
+    level: 0
+    paths: [Declarations.php, External.php, Edges.php]
+    bootstrapFiles: [../laravel-contracts/bootstrap.php]
+    tmpDir: ../../../build/queue-routing
