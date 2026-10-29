@@ -9,6 +9,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleErrorBuilder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Noldors\PHPStan\Eloquent\Arguments;
 use PHPStan\Reflection\ReflectionProvider;
 use Noldors\PHPStan\Configuration\ClassScope;
@@ -61,31 +62,31 @@ final class LaravelUseCaseActorRule implements Rule
             return [];
         }
 
-        $global = $call instanceof Node\Expr\StaticCall ? $this->isAuthFacade($call, $scope) : $this->isGlobalAuth($call->var, $scope);
+        $global = $call instanceof Node\Expr\StaticCall ? $this->isGlobalActorFacade($call, $scope) : $this->isGlobalActorSource($call->var, $scope);
 
         return $global ? [RuleErrorBuilder::message('Pass the actor or an explicit guard into the use case instead of looking up the global actor.')
             ->identifier('architecture.useCaseActor')->build()] : [];
     }
 
-    private function isGlobalAuth(Node\Expr $expression, Scope $scope): bool
+    private function isGlobalActorSource(Node\Expr $expression, Scope $scope): bool
     {
         if ($expression instanceof Node\Expr\FuncCall && $expression->name instanceof Node\Name && $this->reflectionProvider->hasFunction($expression->name, $scope)) {
-            return 'auth' === \mb_strtolower($this->reflectionProvider->getFunction($expression->name, $scope)->getName());
+            return \in_array(\mb_strtolower($this->reflectionProvider->getFunction($expression->name, $scope)->getName()), ['auth', 'request'], true);
         }
 
         if ($expression instanceof Node\Expr\StaticCall) {
-            return $this->isAuthFacade($expression, $scope);
+            return $this->isGlobalActorFacade($expression, $scope);
         }
 
-        return ($expression instanceof Node\Expr\MethodCall || $expression instanceof Node\Expr\NullsafeMethodCall) && $this->isGlobalAuth($expression->var, $scope);
+        return ($expression instanceof Node\Expr\MethodCall || $expression instanceof Node\Expr\NullsafeMethodCall) && $this->isGlobalActorSource($expression->var, $scope);
     }
 
-    private function isAuthFacade(Node\Expr\StaticCall $call, Scope $scope): bool
+    private function isGlobalActorFacade(Node\Expr\StaticCall $call, Scope $scope): bool
     {
         $classes = $call->class instanceof Node\Name ? [$scope->resolveName($call->class)] : $scope->getType($call->class)->getObjectTypeOrClassStringObjectType()->getObjectClassNames();
 
         foreach ($classes as $class) {
-            if ($this->reflectionProvider->hasClass($class) && $this->reflectionProvider->getClass($class)->is(Auth::class)) {
+            if ($this->reflectionProvider->hasClass($class) && ($this->reflectionProvider->getClass($class)->is(Auth::class) || $this->reflectionProvider->getClass($class)->is(Request::class))) {
                 return true;
             }
         }

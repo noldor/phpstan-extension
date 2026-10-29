@@ -9,6 +9,15 @@ use Symfony\Component\Process\Process;
 
 final class ForeignKeyConfigurationTest extends TestCase
 {
+    public function testLaravelSetRegistersTheScopedMigrationCheck(): void
+    {
+        $process = $this->analyse('foreign-keys-laravel.neon');
+        $output = $process->getOutput() . $process->getErrorOutput();
+        $this->assertSame(1, $process->getExitCode(), $output);
+        $this->assertStringContainsString('laravel.foreignKeyTable', $output);
+        $this->assertStringContainsString('"file_errors":3', $output);
+    }
+
     public function testRegisteredRuleChecksOnlyConfiguredMigrationPaths(): void
     {
         $process = $this->analyse('foreign-keys.neon');

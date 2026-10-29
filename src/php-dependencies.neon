@@ -1,0 +1,14 @@
+services:
+    noldors.dependencies.scope:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.dependencies.classes%
+            namespaces: %noldors.dependencies.namespaces%
+            excludedClasses: %noldors.dependencies.excludedClasses%
+            excludedNamespaces: %noldors.dependencies.excludedNamespaces%
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\InjectedDependencyRule
+        arguments:
+            owners: @noldors.dependencies.scope
+        tags: [phpstan.rules.rule]

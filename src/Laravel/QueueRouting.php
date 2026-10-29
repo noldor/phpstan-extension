@@ -261,6 +261,10 @@ final class QueueRouting
 
     private function routeEffect(ClassReflection $class, Node\Expr $expression): bool|null
     {
+        if (! $this->readableQueueProperty($class)) {
+            return null;
+        }
+
         if ($expression instanceof Node\Expr\Assign && $expression->var instanceof Node\Expr\PropertyFetch && $expression->var->var instanceof Node\Expr\Variable && 'this' === $expression->var->var->name && $expression->var->name instanceof Node\Identifier && 'queue' === $expression->var->name->toString()) {
             return $this->queueExpression($class, $expression->expr);
         }
@@ -272,6 +276,15 @@ final class QueueRouting
         }
 
         return null;
+    }
+
+    private function readableQueueProperty(ClassReflection $class): bool
+    {
+        if ($class->hasNativeProperty('queue')) {
+            return $class->getNativeProperty('queue')->isPublic() && ! $class->getNativeProperty('queue')->isStatic();
+        }
+
+        return $class->allowsDynamicProperties() && ! $class->hasNativeMethod('__set') && ! $class->hasNativeMethod('__get');
     }
 
     private function queueExpression(ClassReflection $class, Node\Expr $expression): bool

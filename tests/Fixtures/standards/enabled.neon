@@ -1,0 +1,17 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        dependencies:
+            namespaces: [StandardsFixture\Dependencies]
+        laravel:
+            enums:
+                namespaces: [StandardsFixture\Enums]
+            enumDirectories: [enums]
+            lighthouseValidators:
+                classes: [StandardsFixture\Lighthouse\CreateValidator, StandardsFixture\Lighthouse\WrongValidator, StandardsFixture\Lighthouse\UpdateValidator, StandardsFixture\Lighthouse\ValidatorBase]
+            lighthouseResolvers:
+                classes: [StandardsFixture\Lighthouse\MissingHandler, StandardsFixture\Lighthouse\InheritedHandler]
+            lighthouseSubscriptions:
+                classes: [StandardsFixture\Lighthouse\ChangedSubscription, StandardsFixture\Lighthouse\CreatedSubscription]

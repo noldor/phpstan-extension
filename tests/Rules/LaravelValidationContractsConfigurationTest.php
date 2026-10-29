@@ -9,6 +9,14 @@ use Symfony\Component\Process\Process;
 
 final class LaravelValidationContractsConfigurationTest extends TestCase
 {
+    public function testLaravelSetConnectsConfiguredValidatorContracts(): void
+    {
+        $result = $this->analyse('full-set.neon');
+        $output = $result->getOutput() . $result->getErrorOutput();
+        $this->assertSame(1, $result->getExitCode(), $output);
+        $this->assertStringContainsString('"identifier":"validation.methodOrder"', $output);
+    }
+
     public function testFragmentRegistersConfiguredContracts(): void
     {
         $result = $this->analyse('enabled.neon');

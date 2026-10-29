@@ -15,9 +15,9 @@ final class LaravelHelperFunctions
         '__', 'abort', 'abort_if', 'abort_unless', 'action', 'app', 'app_path', 'asset', 'auth', 'back', 'base_path', 'bcrypt',
         'broadcast', 'broadcast_if', 'broadcast_unless', 'cache', 'config', 'config_path', 'context', 'cookie', 'csrf_field',
         'csrf_token', 'database_path', 'decrypt', 'defer', 'dispatch', 'dispatch_sync', 'encrypt', 'env', 'event', 'fake',
-        'info', 'lang_path', 'logger', 'logs', 'mix', 'old', 'policy', 'precognitive', 'public_path', 'redirect', 'report',
+        'info', 'lang_path', 'logger', 'logs', 'mix', 'now', 'old', 'policy', 'precognitive', 'public_path', 'redirect', 'report',
         'report_if', 'report_unless', 'request', 'rescue', 'resolve', 'resource_path', 'response', 'route', 'secure_asset',
-        'secure_url', 'session', 'storage_path', 'to_action', 'to_route', 'trans', 'trans_choice', 'url', 'validator', 'view',
+        'secure_url', 'session', 'storage_path', 'to_action', 'to_route', 'today', 'trans', 'trans_choice', 'uri', 'url', 'validator', 'view',
     ];
 
     /**
@@ -27,9 +27,9 @@ final class LaravelHelperFunctions
      */
     private const array ADDITIONAL_HELPERS = [
         'append_config', 'blank', 'class_basename', 'class_uses_recursive', 'collect', 'data_fill', 'data_forget', 'data_get',
-        'data_has', 'data_set', 'e', 'filled', 'fluent', 'head', 'laravel_cloud', 'last', 'literal', 'method_field', 'now',
-        'lazy', 'object_get', 'once', 'optional', 'preg_replace_array', 'proxy', 'retry', 'str', 'tap', 'throw_if', 'throw_unless', 'today',
-        'trait_uses_recursive', 'transform', 'uri', 'value', 'when', 'windows_os', 'with',
+        'data_has', 'data_set', 'e', 'filled', 'fluent', 'head', 'laravel_cloud', 'last', 'literal', 'method_field',
+        'lazy', 'object_get', 'once', 'optional', 'preg_replace_array', 'proxy', 'retry', 'str', 'tap', 'throw_if', 'throw_unless',
+        'trait_uses_recursive', 'transform', 'value', 'when', 'windows_os', 'with',
     ];
 
     /**

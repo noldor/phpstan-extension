@@ -9,6 +9,32 @@ use Symfony\Component\Process\Process;
 
 final class DependencyAccessConfigurationTest extends TestCase
 {
+    public function testLocatorContractsApplyToInheritedImplementationsAndCallableForms(): void
+    {
+        $report = $this->analyse('inherited-locator.neon');
+        $this->assertSame([19, 20, 21, 22], \array_column($this->messages($report, 'architecture.dependencyInjection'), 'line'));
+    }
+
+    public function testUseCasesRejectKnownGlobalRequestActorLookupsWithoutADiScope(): void
+    {
+        $report = $this->analyse('actor-sources.neon');
+        $this->assertSame([11, 12, 13, 14, 15], \array_column($this->messages($report, 'architecture.useCaseActor'), 'line'));
+    }
+
+    public function testDateAndUrlServiceHelpersAreRestrictedWhilePureHelpersRemainAllowed(): void
+    {
+        $report = $this->analyse('service-helpers.neon');
+        $this->assertSame([9, 10, 11], \array_column($this->messages($report, 'architecture.dependencyInjection'), 'line'));
+    }
+
+    public function testLaravelSetUsesServiceOnlyHelpersAndDefaultLifecycleExclusions(): void
+    {
+        $report = $this->analyse('full-set.neon');
+        $this->assertSame([34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48], \array_column($this->messages($report, 'architecture.dependencyInjection'), 'line'));
+        $this->assertNotEmpty($this->messages($report, 'architecture.useCaseActor'));
+        $this->assertNotEmpty($this->messages($report, 'architecture.useCaseTransport'));
+    }
+
     public function testRestrictsFacadesHelpersAndServiceLocatorsOnlyInsideSelectedDiClasses(): void
     {
         $report = $this->analyse('phpstan.neon');
@@ -85,7 +111,7 @@ final class DependencyAccessConfigurationTest extends TestCase
                 $this->assertIsString($message['identifier']);
                 $this->assertIsString($message['message']);
                 $this->assertIsInt($message['line']);
-                $this->assertContains($message['identifier'], ['architecture.dependencyInjection', 'architecture.useCaseTransport', 'architecture.useCaseActor']);
+                $this->assertContains($message['identifier'], ['architecture.dependencyInjection', 'architecture.useCaseTransport', 'architecture.useCaseActor', 'architecture.useCaseName']);
                 $messages[] = ['identifier' => $message['identifier'], 'message' => $message['message'], 'line' => $message['line']];
             }
         }

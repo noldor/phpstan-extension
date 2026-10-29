@@ -1,7 +1,6 @@
 includes:
     - ../../../vendor/larastan/larastan/extension.neon
     - ../../../src/laravel.neon
-    - ../../../src/laravel-queue-routing.neon
 
 parameters:
     level: 0

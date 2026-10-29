@@ -1,0 +1,7 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        dependencies:
+            namespaces: [false]

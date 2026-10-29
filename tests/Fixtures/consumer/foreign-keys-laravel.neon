@@ -1,0 +1,11 @@
+includes:
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [foreign-keys, foreign-keys-external]
+    tmpDir: ../../../build/foreign-keys-laravel
+    noldors:
+        foreignKeys:
+            paths: [foreign-keys]
+            excludePaths: [foreign-keys/excluded]

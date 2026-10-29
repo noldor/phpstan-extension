@@ -321,11 +321,13 @@ final class ForeignKeyBody
     private function argument(Node\Expr\MethodCall|Node\Expr\NullsafeMethodCall $call, string $name, int $position): Type|null
     {
         foreach ($call->getArgs() as $argument) {
-            $type = $this->value($argument->value);
-
             if ($argument->name?->toString() === $name) {
-                return $type;
+                return $this->value($argument->value);
             }
+        }
+
+        foreach ($call->getArgs() as $argument) {
+            $type = $this->value($argument->value);
 
             if (null !== $argument->name) {
                 continue;

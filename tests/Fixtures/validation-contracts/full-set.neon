@@ -1,0 +1,11 @@
+includes:
+    - ../../../src/laravel.neon
+parameters:
+    level: 0
+    paths: [Methods.php]
+    tmpDir: ../../../build/validation-contracts-full-set
+    noldors:
+        allowedValidationPaths!: [.]
+        laravel:
+            validators:
+                classes: [ValidationContractFixtures\WrongMethods]

@@ -19,6 +19,8 @@ function valid(Table $table): void
     // A foreign-looking name or polymorphic relationship does not require an FK.
     $table->foreignId('unconstrained_id');
     $table->nullableMorphs('subject');
+    $table->foreignId('named_after_empty_id')->constrained(...[], table: 'users')->restrictOnDelete()->cascadeOnUpdate();
+    $table->foreignId('named_after_options_id')->constrained(...['column' => 'id'], table: 'users')->restrictOnDelete()->cascadeOnUpdate();
 }
 
 function split(Table $table): void

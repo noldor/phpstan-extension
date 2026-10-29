@@ -1,0 +1,11 @@
+includes:
+    - full-set.neon
+parameters:
+    paths!: [ActorSources.php]
+    tmpDir: ../../../build/dependency-access-actor-sources
+    noldors:
+        laravel:
+            useCases:
+                classes!: [DependencyAccess\ReadGlobalActor]
+            dependencyInjection:
+                classes!: []

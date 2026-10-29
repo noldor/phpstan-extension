@@ -53,7 +53,8 @@ transport access hidden behind untyped values or arbitrary helper bodies.
 
 `architecture.useCaseActor` rejects direct global actor lookup in selected use
 cases: `Auth::user()`, `Auth::id()`, `auth()->user()`, `auth('api')->id()` and
-lookups through global facade guard/driver chains. Imported facade aliases,
+lookups through global facade guard/driver chains, `request()->user()` and the
+Request facade. Imported facade aliases,
 known dynamic names, class strings, nullsafe calls and first-class method
 callables are covered. An injected `Guard` or actor remains accepted.
 
@@ -84,10 +85,12 @@ inside selected DI classes.
   `Illuminate\Support\Facades\Facade`, including custom facades, imported aliases,
   dynamic method names and known class strings. Larastan method forwarding does
   not hide the original facade source.
-- Global Laravel helper calls and first-class function callables. The default
-  `allLaravelHelpers: true` includes utility helpers such as `collect`, `data_get`,
-  `blank` and `value`. Native PHP functions and user-defined namespaced functions
-  with the same short names remain accepted.
+- Global service-acquiring Laravel helper calls and first-class function
+  callables, such as `app`, `resolve`, `auth`, `config`, `cache`, `request` and
+  `dispatch`. Facade-backed helpers `now`, `today` and `uri` also acquire services.
+  The default `allLaravelHelpers: false` accepts utility helpers
+  such as `collect`, `data_get`, `blank` and `value`. Native PHP functions and
+  user-defined namespaced functions with the same short names remain accepted.
 - Service locator retrieval through configured container types and method names,
   including injected containers, PSR containers, static `getInstance()`, nullsafe
   calls and first-class method callables. Container array reads are also checked;
@@ -118,9 +121,9 @@ class until classes or namespaces are configured. Facade definitions or other
 technical adapters included by an unusually broad namespace selection can be
 excluded explicitly.
 
-For a narrower helper policy, set `allLaravelHelpers: false`. This retains the
-framework/service helper set in `LaravelHelperFunctions::SERVICES` and accepts
-additional utility helpers. `helpers` adds explicitly named helper APIs in either
+The default service helper set is listed in `LaravelHelperFunctions::SERVICES`.
+For an explicitly stricter policy, set `allLaravelHelpers: true` to include
+Laravel utility helpers. `helpers` adds explicitly named helper APIs in either
 mode. All-helper mode recognizes global functions by their Laravel helper source
 path and uses a known Laravel helper-name catalog for reflected signatures whose
 original source is unavailable. Recognition reads reflection metadata only; it

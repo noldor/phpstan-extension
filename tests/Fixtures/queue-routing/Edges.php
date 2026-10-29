@@ -123,3 +123,38 @@ final class NullMethodOverridesAttribute implements ShouldQueueAfterCommit
 {
     public function viaQueue(): ?string { return null; }
 }
+
+namespace QueueRoutingFixtures\Jobs;
+
+final class HiddenConstructorRoute implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit // @expect laravel.queueRoute
+{
+    private string $queue;
+    public function __construct(string $queue) { $this->queue = $queue; }
+}
+
+final class ProtectedConstructorRoute implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit // @expect laravel.queueRoute
+{
+    protected string $queue;
+    public function __construct(string $queue) { $this->queue = $queue; }
+}
+
+final class PublicConstructorRoute implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit
+{
+    public string $queue;
+    public function __construct(string $queue) { $this->queue = $queue; }
+}
+
+/** @property string $queue */
+#[\AllowDynamicProperties]
+final class DynamicPublicRoute implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit
+{
+    public function __construct(string $queue) { $this->queue = $queue; }
+}
+
+/** @property string $queue */
+#[\AllowDynamicProperties] // @expect laravel.queueRoute
+final class InterceptedDynamicRoute implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit
+{
+    public function __construct(string $queue) { $this->queue = $queue; }
+    public function __set(string $name, mixed $value): void {}
+}

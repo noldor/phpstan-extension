@@ -1,0 +1,46 @@
+services:
+    noldors.laravel.enums:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.enums.classes%
+            namespaces: %noldors.laravel.enums.namespaces%
+            excludedClasses: %noldors.laravel.enums.excludedClasses%
+            excludedNamespaces: %noldors.laravel.enums.excludedNamespaces%
+        autowired: false
+    noldors.laravel.lighthouseValidators:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.lighthouseValidators.classes%
+            namespaces: %noldors.laravel.lighthouseValidators.namespaces%
+            excludedClasses: %noldors.laravel.lighthouseValidators.excludedClasses%
+            excludedNamespaces: %noldors.laravel.lighthouseValidators.excludedNamespaces%
+        autowired: false
+    noldors.laravel.lighthouseResolvers:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.lighthouseResolvers.classes%
+            namespaces: %noldors.laravel.lighthouseResolvers.namespaces%
+            excludedClasses: %noldors.laravel.lighthouseResolvers.excludedClasses%
+            excludedNamespaces: %noldors.laravel.lighthouseResolvers.excludedNamespaces%
+        autowired: false
+    noldors.laravel.lighthouseSubscriptions:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.lighthouseSubscriptions.classes%
+            namespaces: %noldors.laravel.lighthouseSubscriptions.namespaces%
+            excludedClasses: %noldors.laravel.lighthouseSubscriptions.excludedClasses%
+            excludedNamespaces: %noldors.laravel.lighthouseSubscriptions.excludedNamespaces%
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\LaravelEnumRule
+        arguments:
+            enums: @noldors.laravel.enums
+            directories: %noldors.laravel.enumDirectories%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LighthouseClassContractRule
+        arguments:
+            validators: @noldors.laravel.lighthouseValidators
+            resolvers: @noldors.laravel.lighthouseResolvers
+            subscriptions: @noldors.laravel.lighthouseSubscriptions
+        tags: [phpstan.rules.rule]

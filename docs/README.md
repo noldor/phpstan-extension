@@ -25,6 +25,7 @@ configuration when analysing Laravel APIs.
 | `JsonThrowOnErrorRule` | `json.missingThrowOnError` | [JSON error flags](rules/json-throw-on-error.md) |
 | `MutableCollectionExposureRule` | `encapsulation.mutableCollectionExposure` | [Mutable collections](rules/mutable-collection-exposure.md) |
 | `DtoInfrastructureUsageExtension` | `architecture.dtoInfrastructureUsage` | [DTO infrastructure usage](rules/dto-infrastructure-usage.md) |
+| `InjectedDependencyRule` | `api.dependencyPromotion`, `api.dependencyReadonly` | [Constructor dependencies](rules/constructor-dependencies.md) |
 
 Reference-parameter, exception-translation and JSON-flag checks run when a set is connected.
 Collection owners and DTO scopes are empty by default; configure the classes,
@@ -45,6 +46,7 @@ the selectors for the project's installed APIs as described in the rule docs.
 | --- | --- |
 | `LaravelValidationLocationRule` | [Validation declarations](rules/laravel-validation-location.md) |
 | `LaravelValidationCallableRule` | [Validation callables](rules/laravel-validation-callable.md) |
+| `LaravelValidationContractRule` | [Validator methods, field order and messages](rules/laravel-validation-contracts.md) |
 | `LaravelPostgresInstantRule` | [PostgreSQL instants](rules/laravel-postgres-instant.md) |
 | `LaravelUseCaseRule` | [Use-case declarations](rules/laravel-use-case.md) |
 | `LaravelUseCaseExceptionRule` and validation usage extension | [Use-case validation boundary](rules/laravel-use-case-validation.md) |
@@ -53,6 +55,11 @@ the selectors for the project's installed APIs as described in the rule docs.
 | `LaravelJobPayloadRule` and assignment rule | [Job payloads](rules/laravel-job-payload.md) |
 | `LaravelBulkLifecycleRule` | [Bulk lifecycle operations](rules/laravel-bulk-lifecycle.md) |
 | `LaravelValidationSideEffectsExtension` | [Validation side effects](rules/laravel-validation-side-effects.md) |
+| `LaravelForeignKeyRule` | [Explicit foreign-key declarations](rules/laravel-foreign-keys.md) |
+| Queue routing declaration, producer and collector rules | [Internal queue routing and native attributes](rules/laravel-queue-routing.md) |
+| `LaravelEnumRule` | [Application enums](rules/laravel-enums.md) |
+| `LighthouseClassContractRule` | [Lighthouse PHP class contracts](rules/lighthouse-class-contracts.md) |
+| Dependency access extensions, actor and callable adapters | [DI and use-case boundaries](rules/laravel-dependency-access.md) |
 | Eloquent model rules and collectors | [Models, observers, dates, PHPDoc, morph aliases and pivots](rules/eloquent-models.md) |
 
 The Eloquent model scope is empty by default. Its [attribute catalog](laravel-attributes.md)

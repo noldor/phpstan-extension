@@ -1,0 +1,11 @@
+includes:
+    - full-set.neon
+parameters:
+    paths!: [ServiceHelpers.php]
+    tmpDir: ../../../build/dependency-access-service-helpers
+    noldors:
+        laravel:
+            useCases:
+                classes!: []
+            dependencyInjection:
+                classes!: [DependencyAccess\DateAndUrlService]

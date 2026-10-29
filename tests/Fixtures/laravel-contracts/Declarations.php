@@ -26,9 +26,9 @@ namespace ContractFixtures\Listeners {
     class ExtensibleListener implements \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit {} // @expect laravel.listenerFinal
     abstract class CommittedListener implements \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit {}
     final class InheritedListener extends CommittedListener {}
-    final class QueuedListener implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit
-    final class CommittedQueuedListener implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {}
-    final class DynamicQueuedListener implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { public function shouldQueue(): bool { return false; } }
+    final class QueuedListener implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit laravel.queueRoute
+    final class CommittedQueuedListener implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {} // @expect laravel.queueRoute
+    final class DynamicQueuedListener implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { public function shouldQueue(): bool { return false; } } // @expect laravel.queueRoute
     final class ListenerObserver implements \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit {} // @expect laravel.observerAfterCommit
 }
 
@@ -60,35 +60,35 @@ namespace ContractFixtures\Observers {
 }
 
 namespace ContractFixtures\Jobs {
-    final class MissingQueueContract {} // @expect laravel.queueAfterCommit
-    final class EarlyJob implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit
+    final class MissingQueueContract {} // @expect laravel.queueAfterCommit laravel.queueRoute
+    final class EarlyJob implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit laravel.queueRoute
     abstract class CommittedJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {}
-    final class InheritedJob extends CommittedJob {}
-    final class DefaultEarlyJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { public $afterCommit = false; } // @expect laravel.queueBeforeCommit
-    final class PromotedEarlyJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class InheritedJob extends CommittedJob {} // @expect laravel.queueRoute
+    final class DefaultEarlyJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { public $afterCommit = false; } // @expect laravel.queueBeforeCommit laravel.queueRoute
+    final class PromotedEarlyJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         public function __construct(public bool $afterCommit = false) {} // @expect laravel.queueBeforeCommit
     }
-    final class LocalBeforeCommitJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class LocalBeforeCommitJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         use \Illuminate\Bus\Queueable;
         public function beforeCommit(): void {}
     }
-    final class DispatchableJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class DispatchableJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         use \Illuminate\Bus\Queueable;
         use \Illuminate\Foundation\Bus\Dispatchable;
         public function handle(): void {}
         public function other(): \Illuminate\Foundation\Bus\PendingDispatch { return \ContractFixtures\Neutral\UnselectedJob::dispatch(); }
     }
     abstract class CompositeJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { use \Illuminate\Foundation\Queue\Queueable; }
-    final class InheritedCompositeJob extends CompositeJob {}
-    final class CaseSensitiveJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class InheritedCompositeJob extends CompositeJob {} // @expect laravel.queueRoute
+    final class CaseSensitiveJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         use \Illuminate\Bus\Queueable;
         public bool $AFTERCOMMIT = true;
     }
-    final class UnevaluatedDefaultJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class UnevaluatedDefaultJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         use \Illuminate\Bus\Queueable;
         public function __construct(public \DateTimeZone $zone = new \DateTimeZone('invalid/analysis-must-not-construct')) {}
     }
-    final class CustomPendingJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {
+    final class CustomPendingJob implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit { // @expect laravel.queueRoute
         use \Illuminate\Bus\Queueable;
         use \Illuminate\Foundation\Bus\Dispatchable;
         protected static function newPendingDispatch($job): \Illuminate\Foundation\Bus\PendingDispatch {
@@ -98,8 +98,8 @@ namespace ContractFixtures\Jobs {
 }
 
 namespace ContractFixtures\Notifications {
-    final class QueuedNotification extends \Illuminate\Notifications\Notification implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit
-    final class CommittedNotification extends \Illuminate\Notifications\Notification implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {}
+    final class QueuedNotification extends \Illuminate\Notifications\Notification implements \Illuminate\Contracts\Queue\ShouldQueue {} // @expect laravel.queueAfterCommit laravel.notificationQueues
+    final class CommittedNotification extends \Illuminate\Notifications\Notification implements \Illuminate\Contracts\Queue\ShouldQueueAfterCommit {} // @expect laravel.notificationQueues
     final class ImmediateNotification extends \Illuminate\Notifications\Notification {}
 }
 

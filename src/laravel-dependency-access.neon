@@ -24,9 +24,26 @@ services:
             selection: @noldors.laravel.dependencyInjectionScope
             helpers: %noldors.laravel.dependencyInjection.helpers%
             allLaravelHelpers: %noldors.laravel.dependencyInjection.allLaravelHelpers%
+        tags: [phpstan.restrictedClassNameUsageExtension, phpstan.restrictedFunctionUsageExtension]
+    -
+        class: Noldors\PHPStan\Rules\LaravelServiceLocatorCallRule
+        arguments:
+            selection: @noldors.laravel.dependencyInjectionScope
             serviceLocatorTypes: %noldors.laravel.dependencyInjection.serviceLocatorTypes%
             serviceLocatorMethods: %noldors.laravel.dependencyInjection.serviceLocatorMethods%
-        tags: [phpstan.restrictedClassNameUsageExtension, phpstan.restrictedFunctionUsageExtension, phpstan.restrictedMethodUsageExtension]
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelServiceLocatorCallableRule
+        arguments:
+            nodeType: PHPStan\Node\MethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelServiceLocatorCallableRule
+        arguments:
+            nodeType: PHPStan\Node\StaticMethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
     -
         class: Noldors\PHPStan\Rules\LaravelServiceLocatorOffsetRule
         arguments:
