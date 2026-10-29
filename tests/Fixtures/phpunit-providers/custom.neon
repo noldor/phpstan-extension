@@ -1,0 +1,13 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    paths: [CustomCases.php]
+    tmpDir: ../../../build/phpunit-providers-custom
+    noldors:
+        phpunitDataProviders:
+            forbiddenMethods:
+                - {class: ProviderFixtures\Custom\Effects, methods: [record]}
+            forbiddenFunctions:
+                - ProviderFixtures\Custom\deliver

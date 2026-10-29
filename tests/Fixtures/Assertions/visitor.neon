@@ -1,0 +1,4 @@
+services:
+    -
+        class: Noldors\PHPStan\Assertions\AssertArgumentVisitor
+        tags: [phpstan.parser.richParserNodeVisitor]

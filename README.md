@@ -38,6 +38,8 @@ Keep only existing project directories in `paths`. The PHP set checks reference
 parameters, exception translation and mandatory JSON error flags. Its collection
 and DTO checks require explicit owner/DTO scopes; see the
 [rule documentation](docs/README.md).
+The PHP set also enables TLS, full-request logging, assertion and PHPUnit
+provider safety checks. Database builder mock checks require explicit test scopes.
 The Laravel set also enables validation placement checks and adds infrastructure
 APIs to the DTO configuration. Its PostgreSQL instant check requires explicitly
 configured application-owned paths; see the

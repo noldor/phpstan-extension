@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types = 1);
+
+class Mockery
+{
+    public static function mock(mixed ...$args): object
+    {
+        return new \stdClass();
+    }
+
+    public static function spy(mixed ...$args): object
+    {
+        return new \stdClass();
+    }
+}

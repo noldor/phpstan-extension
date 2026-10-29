@@ -1,0 +1,7 @@
+includes:
+    - php.neon
+parameters:
+    tmpDir: ../../../build/security-correctness/scoped
+    noldors:
+        databaseBuilderMocks:
+            classes: [Fixtures\SecurityCorrectness\PersistenceTest]
