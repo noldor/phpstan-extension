@@ -1,0 +1,7 @@
+services:
+    -
+        class: Noldors\PHPStan\Rules\LaravelForeignKeyRule
+        arguments:
+            paths: %noldors.foreignKeys.paths%
+            excludePaths: %noldors.foreignKeys.excludePaths%
+        tags: [phpstan.rules.rule]

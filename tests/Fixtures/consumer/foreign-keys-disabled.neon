@@ -1,0 +1,7 @@
+includes:
+    - foreign-keys.neon
+
+parameters:
+    noldors:
+        foreignKeys:
+            paths!: []
