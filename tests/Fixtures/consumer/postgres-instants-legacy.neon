@@ -1,0 +1,15 @@
+includes:
+    - ../../../src/rules.neon
+
+parameters:
+    level: 0
+    tmpDir: ../../../build/phpstan-consumer-postgres-instants-legacy
+    paths:
+        - postgres-instants
+        - postgres-instants-neighbour
+    noldors:
+        postgresqlInstants:
+            paths:
+                - postgres-instants
+            excludePaths:
+                - postgres-instants/packages

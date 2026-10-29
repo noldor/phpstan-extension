@@ -1,0 +1,9 @@
+includes:
+    - postgres-instants.neon
+
+parameters:
+    noldors:
+        postgresqlInstants:
+            paths!:
+                - %currentWorkingDirectory%/postgres-instants/Owned.php
+            excludePaths!: []

@@ -5,7 +5,7 @@
 | Set | Configuration | Contents |
 | --- | --- | --- |
 | PHP | `src/php.neon` | Reference parameters, exception translation, JSON error flags, configured collection ownership and DTO infrastructure restrictions. |
-| Laravel | `src/laravel.neon` | Includes PHP, adds Laravel DTO infrastructure selectors and enables both validation rules below. |
+| Laravel | `src/laravel.neon` | Includes PHP, adds Laravel DTO infrastructure selectors, enables validation rules and provides a configurable PostgreSQL instant check. |
 
 Include one set in your PHPStan configuration. The Laravel set already includes
 PHP; including both files separately is unnecessary. The package does not enable
@@ -44,10 +44,15 @@ the selectors for the project's installed APIs as described in the rule docs.
 | --- | --- |
 | `LaravelValidationLocationRule` | [Validation declarations](rules/laravel-validation-location.md) |
 | `LaravelValidationCallableRule` | [Validation callables](rules/laravel-validation-callable.md) |
+| `LaravelPostgresInstantRule` | [PostgreSQL instants](rules/laravel-postgres-instant.md) |
 
-Both rules report `architecture.validationLocation`. They analyse every file
-selected by PHPStan's `paths` and exclusions, including files outside `app/`.
+The two validation rules report `architecture.validationLocation`. They analyse
+every file selected by PHPStan's `paths` and exclusions, including files outside `app/`.
 Validator namespaces are unrestricted; placement is checked using file paths.
+
+The PostgreSQL instant rule reports `laravel.postgresqlInstant` for configured
+application-owned PostgreSQL paths. Its scope is empty by default; configure it
+as shown in its [documentation](rules/laravel-postgres-instant.md).
 
 ## Allowed validation directories
 
