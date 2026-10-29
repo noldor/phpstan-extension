@@ -8,3 +8,5 @@ parameters:
         - tests/Rules
         - tests/Stubs
     tmpDir: build/phpstan
+    stubFiles:
+        - vendor/larastan/larastan/stubs/common/Attribute.stub

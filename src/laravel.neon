@@ -32,6 +32,93 @@ parameters:
 
 services:
     -
+        class: Noldors\PHPStan\Eloquent\StaticModelTable
+        arguments:
+            dynamicConfiguration: @noldors.dynamicModelConfiguration
+    -
+        class: Noldors\PHPStan\Eloquent\MethodSource
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+    - Noldors\PHPStan\Eloquent\ModelConstructor
+    - Noldors\PHPStan\Eloquent\PivotChain
+    - Noldors\PHPStan\Eloquent\PivotMethod
+    - Noldors\PHPStan\Eloquent\PivotInverseCheck
+    -
+        class: Noldors\PHPStan\Rules\EloquentPivotRule
+        tags: [phpstan.rules.rule]
+    noldors.eloquentSelection:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.eloquent.modelClasses%
+            namespaces: %noldors.eloquent.modelNamespaces%
+        autowired: false
+    noldors.eloquentExclusions:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.eloquent.excludeModels%
+        autowired: false
+    noldors.eloquentObservers:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.eloquent.observerClasses%
+            namespaces: %noldors.eloquent.observerNamespaces%
+        autowired: false
+    noldors.eloquentScope:
+        class: Noldors\PHPStan\Eloquent\ModelScope
+        arguments:
+            models: @noldors.eloquentSelection
+            excluded: @noldors.eloquentExclusions
+            observers: @noldors.eloquentObservers
+    noldors.dynamicModelConfiguration:
+        class: Noldors\PHPStan\Eloquent\PropertyExceptions
+        arguments: [%noldors.eloquent.dynamicConfiguration%]
+        autowired: false
+    noldors.dateCastExceptions:
+        class: Noldors\PHPStan\Eloquent\PropertyExceptions
+        arguments: [%noldors.eloquent.dateCastExceptions%]
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\EloquentConfigurationRule
+        arguments:
+            dynamicConfiguration: @noldors.dynamicModelConfiguration
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\EloquentDateFormatRule
+        arguments:
+            databaseDateFormat: %noldors.eloquent.databaseDateFormat%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Eloquent\DateCastCheck
+        arguments:
+            jsonDateFormat: %noldors.eloquent.jsonDateFormat%
+            dateCastExceptions: @noldors.dateCastExceptions
+    -
+        class: Noldors\PHPStan\Collectors\EloquentClassCollector
+        arguments:
+            dynamicConfiguration: @noldors.dynamicModelConfiguration
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\EloquentDateSerializerCollector
+        arguments:
+            jsonDateFormat: %noldors.eloquent.jsonDateFormat%
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\EloquentRegistrationCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\EloquentProviderObserverCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\EloquentMorphUsageCollector
+        arguments:
+            morphTypeColumns: %noldors.eloquent.morphTypeColumns%
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Rules\EloquentRegistrationRule
+        arguments:
+            trustedDateSerializers: %noldors.eloquent.trustedDateSerializers%
+        tags: [phpstan.rules.rule]
+    -
         class: Noldors\PHPStan\Rules\LaravelPostgresInstantRule
         arguments:
             paths: %noldors.postgresqlInstants.paths%

@@ -1,0 +1,7 @@
+includes:
+    - base.neon
+parameters:
+    paths: [CoreValid.php]
+    noldors:
+        eloquent:
+            modelNamespaces: [123]

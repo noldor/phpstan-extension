@@ -1,0 +1,6 @@
+includes:
+    - core-valid.neon
+parameters:
+    noldors:
+        eloquent:
+            trustedDateSerializers!: []

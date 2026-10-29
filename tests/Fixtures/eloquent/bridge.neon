@@ -1,0 +1,9 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/laravel-model-properties.neon
+    - scope.neon
+parameters:
+    tmpDir: ../../../build/eloquent-bridge
+    databaseMigrationsPath: [migrations]
+    disableSchemaScan: true
+    enableMigrationCache: false

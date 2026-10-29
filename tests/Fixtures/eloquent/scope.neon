@@ -1,0 +1,20 @@
+parameters:
+    level: 0
+    tmpDir: ../../../build/eloquent-core
+    bootstrapFiles:
+        - bootstrap.php
+    noldors:
+        eloquent:
+            modelNamespaces: [EloquentFixture]
+            excludeModels: [EloquentFixture\Unselected]
+            morphTypeColumns: [subject_type]
+            dynamicConfiguration:
+                - {class: EloquentFixture\DynamicModel, properties: [connection]}
+            trustedDateSerializers:
+                - EloquentFixture\BaseModel::serializeDate
+                - EloquentFixture\GoodPivot::serializeDate
+                - EloquentFixture\PolymorphicPivot::serializeDate
+            writableProperties:
+                - {class: EloquentFixture\WritableKey, properties: [id]}
+            queryProperties:
+                - {class: EloquentFixture\GoodProperties, properties: [rank]}

@@ -45,6 +45,24 @@ configured application-owned paths; see the
 Larastan configuration when analysing Laravel APIs. Application contract checks require
 [explicit role scopes](docs/laravel-application.md).
 
+For the complete opt-in Eloquent model checks, install Larastan ^3.13.2 and use
+the property bridge on Laravel 13.38+:
+
+```neon
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/noldors/phpstan-extension/src/laravel-model-properties.neon
+
+parameters:
+    paths: [app, database/factories]
+    noldors:
+        eloquent:
+            modelNamespaces: [App\Models]
+```
+
+See [Eloquent configuration and coverage](docs/rules/eloquent-models.md) and the
+[complete Laravel attribute catalog](docs/laravel-attributes.md).
+
 The sets are opt-in. Existing `src/rules.neon` includes remain supported and
 load the Laravel set.
 

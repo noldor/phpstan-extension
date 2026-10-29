@@ -21,6 +21,11 @@ final class ClassScope
         private readonly array $excludedNamespaces = [],
     ) {}
 
+    public function isConfigured(): bool
+    {
+        return [] !== $this->classes || [] !== $this->namespaces;
+    }
+
     public function contains(ClassReflection|null $class): bool
     {
         return null !== $class

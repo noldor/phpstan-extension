@@ -1,0 +1,5 @@
+includes:
+    - bridge.neon
+parameters:
+    paths: [NullabilityInvalid.php]
+    scanFiles: [CoreValid.php]
