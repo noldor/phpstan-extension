@@ -1,0 +1,34 @@
+includes:
+    - ../../../src/laravel-validation-contracts.neon
+
+parametersSchema:
+    noldors: structure([
+        laravel: structure([
+            validationContracts: structure([
+                relationships: listOf(structure([class: string(), fields: listOf(string())])),
+                inputValidators: listOf(structure([class: string(), fields: listOf(string())]))
+            ])
+        ])
+    ])
+
+parameters:
+    level: 0
+    paths: [Methods.php, Fields.php, Groups.php, Messages.php, Lighthouse.php, Inherited.php, Valid.php, Unknown.php, Excluded.php]
+    tmpDir: ../../../build/validation-contracts
+    noldors:
+        laravel:
+            validationContracts:
+                relationships: []
+                inputValidators: []
+
+services:
+    -
+        class: Noldors\PHPStan\Eloquent\MethodSource
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+    noldors.laravel.validators:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            namespaces: []
+            excludedClasses: [ValidationContractFixtures\Excluded]
+        autowired: false
