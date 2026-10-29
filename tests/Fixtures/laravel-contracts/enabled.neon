@@ -1,0 +1,29 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            useCases:
+                namespaces: [ContractFixtures\UseCases]
+                excludedClasses: [ContractFixtures\UseCases\ExtensionPoint]
+            events:
+                namespaces: [ContractFixtures\Events]
+            jobs:
+                namespaces: [ContractFixtures\Jobs]
+            listeners:
+                namespaces: [ContractFixtures\Listeners]
+            notifications:
+                namespaces: [ContractFixtures\Notifications]
+            observers:
+                classes: [ContractFixtures\Listeners\ListenerObserver]
+                namespaces: [ContractFixtures\Observers]
+            validators:
+                namespaces: [ContractFixtures\Validation]
+                excludedClasses: [ContractFixtures\Validation\AllowedWriter]
+            softDeleteModels:
+                namespaces: [ContractFixtures\Models]
+            bulkLifecycleOperations:
+                classes: [ContractFixtures\Operations\ApprovedBulkOperation]
+            softDeleteTraits:
+                - \contractfixtures\models\customlifecycle

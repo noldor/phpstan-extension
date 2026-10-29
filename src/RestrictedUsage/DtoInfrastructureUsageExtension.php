@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Noldors\PHPStan\RestrictedUsage;
 
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\FunctionReflection;
 use Noldors\PHPStan\Configuration\ClassScope;
 use PHPStan\Reflection\ExtendedMethodReflection;
@@ -15,15 +14,19 @@ use PHPStan\Rules\RestrictedUsage\RestrictedFunctionUsageExtension;
 
 final class DtoInfrastructureUsageExtension implements RestrictedFunctionUsageExtension, RestrictedMethodUsageExtension
 {
+    private readonly ForbiddenApis $apis;
+
     /**
      * @param list<array{class: string, methods: list<string>}> $forbiddenMethods
      * @param list<string> $forbiddenFunctions
      */
     public function __construct(
         private readonly ClassScope $dtoScope,
-        private readonly array $forbiddenMethods = [],
-        private readonly array $forbiddenFunctions = [],
-    ) {}
+        array $forbiddenMethods = [],
+        array $forbiddenFunctions = [],
+    ) {
+        $this->apis = new ForbiddenApis($forbiddenMethods, $forbiddenFunctions);
+    }
 
     public function isRestrictedMethodUsage(ExtendedMethodReflection $methodReflection, Scope $scope): RestrictedUsage|null
     {
@@ -31,7 +34,7 @@ final class DtoInfrastructureUsageExtension implements RestrictedFunctionUsageEx
             return null;
         }
 
-        if (! $this->isForbiddenMethod($methodReflection->getDeclaringClass(), $methodReflection->getName())) {
+        if (! $this->apis->matchesMethod($methodReflection->getDeclaringClass(), $methodReflection->getName())) {
             return null;
         }
 
@@ -48,32 +51,11 @@ final class DtoInfrastructureUsageExtension implements RestrictedFunctionUsageEx
             return null;
         }
 
-        foreach ($this->forbiddenFunctions as $function) {
-            if (\strcasecmp(\mb_ltrim($function, '\\'), $functionReflection->getName()) === 0) {
-                return $this->restriction(\sprintf('function %s()', $functionReflection->getName()));
-            }
+        if (! $this->apis->matchesFunction($functionReflection->getName())) {
+            return null;
         }
 
-        return null;
-    }
-
-    private function isForbiddenMethod(ClassReflection $class, string $method): bool
-    {
-        foreach ($this->forbiddenMethods as $forbidden) {
-            $targetClass = \mb_ltrim($forbidden['class'], '\\');
-
-            if (\strcasecmp($class->getName(), $targetClass) !== 0 && ! $class->is($targetClass)) {
-                continue;
-            }
-
-            foreach ($forbidden['methods'] as $forbiddenMethod) {
-                if ('*' === $forbiddenMethod || \strcasecmp($forbiddenMethod, $method) === 0) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return $this->restriction(\sprintf('function %s()', $functionReflection->getName()));
     }
 
     private function restriction(string $operation): RestrictedUsage

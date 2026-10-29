@@ -45,8 +45,17 @@ the selectors for the project's installed APIs as described in the rule docs.
 | `LaravelValidationLocationRule` | [Validation declarations](rules/laravel-validation-location.md) |
 | `LaravelValidationCallableRule` | [Validation callables](rules/laravel-validation-callable.md) |
 | `LaravelPostgresInstantRule` | [PostgreSQL instants](rules/laravel-postgres-instant.md) |
+| `LaravelUseCaseRule` | [Use-case declarations](rules/laravel-use-case.md) |
+| `LaravelUseCaseExceptionRule` and validation usage extension | [Use-case validation boundary](rules/laravel-use-case-validation.md) |
+| `LaravelQueueContractRule`, override rule and callable adapter | [Queued after-commit contracts](rules/laravel-queue-after-commit.md) |
+| `LaravelEventContractRule` | [Events, listeners and observers](rules/laravel-event-contracts.md) |
+| `LaravelJobPayloadRule` and assignment rule | [Job payloads](rules/laravel-job-payload.md) |
+| `LaravelBulkLifecycleRule` | [Bulk lifecycle operations](rules/laravel-bulk-lifecycle.md) |
+| `LaravelValidationSideEffectsExtension` | [Validation side effects](rules/laravel-validation-side-effects.md) |
 
-The two validation rules report `architecture.validationLocation`. They analyse
+Application-contract scopes are empty by default; see [scope configuration and compatibility](laravel-application.md).
+
+The two validation-location rules report `architecture.validationLocation`. They analyse
 every file selected by PHPStan's `paths` and exclusions, including files outside `app/`.
 Validator namespaces are unrestricted; placement is checked using file paths.
 

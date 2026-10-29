@@ -42,7 +42,8 @@ The Laravel set also enables validation placement checks and adds infrastructure
 APIs to the DTO configuration. Its PostgreSQL instant check requires explicitly
 configured application-owned paths; see the
 [rule documentation](docs/rules/laravel-postgres-instant.md). Keep your existing
-Larastan configuration when analysing Laravel APIs.
+Larastan configuration when analysing Laravel APIs. Application contract checks require
+[explicit role scopes](docs/laravel-application.md).
 
 The sets are opt-in. Existing `src/rules.neon` includes remain supported and
 load the Laravel set.

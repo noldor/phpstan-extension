@@ -1,0 +1,8 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            jobs:
+                namespaces: [42]

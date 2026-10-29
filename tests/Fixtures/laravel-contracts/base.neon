@@ -1,0 +1,16 @@
+includes:
+    - ../../../vendor/larastan/larastan/extension.neon
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths:
+        - Declarations.php
+        - UseCaseValidation.php
+        - QueueOverrides.php
+        - Payload.php
+        - BulkLifecycle.php
+        - Validation.php
+    bootstrapFiles:
+        - bootstrap.php
+    tmpDir: ../../../build/laravel-contracts

@@ -1,5 +1,6 @@
 includes:
     - php.neon
+    - laravel-application.neon
 
 parameters:
     noldors:

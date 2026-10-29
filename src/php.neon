@@ -1,5 +1,90 @@
 parameters:
     noldors:
+        laravel:
+            useCases:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            events:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            jobs:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            listeners:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            notifications:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            observers:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            validators:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            softDeleteModels:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            bulkLifecycleOperations:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+            completedEventSuffixes: [Created, Updated, Deleted, Restored, Saved, ForceDeleted, Trashed]
+            validationExceptions: [Illuminate\Validation\ValidationException]
+            errorBagClasses: [Illuminate\Support\MessageBag, Illuminate\Support\ViewErrorBag]
+            softDeleteTraits: [Illuminate\Database\Eloquent\SoftDeletes]
+            validationSideEffects:
+                forbiddenMethods:
+                    - {class: Illuminate\Database\Eloquent\Model, methods: [save, saveOrFail, saveQuietly, update, updateOrFail, updateQuietly, delete, deleteOrFail, deleteQuietly, destroy, forceDelete, forceDeleteQuietly, forceDestroy, restore, restoreQuietly, push, pushQuietly, increment, decrement, touch, touchQuietly]}
+                    - {class: Illuminate\Database\Eloquent\Builder, methods: [create, createQuietly, forceCreate, forceCreateQuietly, firstOrCreate, createOrFirst, updateOrCreate, upsert, update, delete, forceDelete, restore, increment, decrement, touch]}
+                    - {class: Illuminate\Database\Query\Builder, methods: [insert, insertGetId, insertOrIgnore, insertUsing, insertOrIgnoreUsing, update, updateOrInsert, upsert, delete, truncate, increment, decrement, incrementEach, decrementEach]}
+                    - {class: Illuminate\Database\Eloquent\Relations\Relation, methods: [save, saveMany, create, createMany, touch]}
+                    - {class: Illuminate\Database\Eloquent\Relations\BelongsToMany, methods: [attach, detach, sync, syncWithoutDetaching, syncWithPivotValues, toggle, updateExistingPivot]}
+                    - {class: Illuminate\Database\ConnectionInterface, methods: [insert, update, delete, statement, unprepared, affectingStatement]}
+                    - {class: Illuminate\Contracts\Bus\Dispatcher, methods: [dispatch, dispatchSync, dispatchNow, dispatchToQueue]}
+                    - {class: Illuminate\Contracts\Events\Dispatcher, methods: [dispatch, until, push, flush]}
+                    - {class: Illuminate\Contracts\Queue\Queue, methods: [push, pushOn, later, laterOn, bulk]}
+                    - {class: Illuminate\Contracts\Notifications\Dispatcher, methods: [send, sendNow]}
+                    - {class: Illuminate\Contracts\Mail\Mailer, methods: [raw, send, sendNow]}
+                    - {class: Illuminate\Contracts\Mail\MailQueue, methods: [queue, later]}
+                    - {class: Illuminate\Contracts\Mail\Mailable, methods: [send, queue, later]}
+                    - {class: Illuminate\Mail\Mailer, methods: [html, raw, send, sendNow, queue, queueOn, later, laterOn]}
+                    - {class: Illuminate\Mail\PendingMail, methods: [send, sendNow, queue, later]}
+                    - {class: Illuminate\Notifications\RoutesNotifications, methods: [notify, notifyNow]}
+                    - {class: Illuminate\Foundation\Bus\Dispatchable, methods: [dispatch, dispatchIf, dispatchUnless, dispatchSync, dispatchAfterResponse]}
+                    - {class: Illuminate\Foundation\Events\Dispatchable, methods: [dispatch, dispatchIf, dispatchUnless, broadcast]}
+                    - {class: Illuminate\Http\Client\PendingRequest, methods: [send, get, head, post, put, patch, delete, options, pool, batch]}
+                    - {class: Illuminate\Http\Client\Factory, methods: [send, get, head, post, put, patch, delete, options, pool, batch]}
+                    - {class: Illuminate\Contracts\Filesystem\Filesystem, methods: [put, writeStream, delete, deleteDirectory, makeDirectory, copy, move, setVisibility]}
+                    - {class: Illuminate\Contracts\Cache\Repository, methods: [put, putMany, add, forever, increment, decrement, forget, flush, remember, rememberForever]}
+                    - {class: PDO, methods: [exec]}
+                    - {class: Illuminate\Support\Facades\DB, methods: [insert, update, delete, statement, unprepared, affectingStatement]}
+                    - {class: Illuminate\Support\Facades\Bus, methods: [dispatch, dispatchSync, dispatchNow, dispatchToQueue]}
+                    - {class: Illuminate\Support\Facades\Event, methods: [dispatch, until, push, flush]}
+                    - {class: Illuminate\Support\Facades\Queue, methods: [push, pushOn, later, laterOn, bulk]}
+                    - {class: Illuminate\Support\Facades\Notification, methods: [send, sendNow]}
+                    - {class: Illuminate\Support\Facades\Mail, methods: [html, raw, send, sendNow, queue, queueOn, later, laterOn]}
+                    - {class: Illuminate\Support\Facades\Http, methods: [send, get, head, post, put, patch, delete, options, pool, batch]}
+                    - {class: Illuminate\Support\Facades\Storage, methods: [put, writeStream, delete, deleteDirectory, makeDirectory, copy, move, setVisibility]}
+                    - {class: Illuminate\Support\Facades\Cache, methods: [put, putMany, add, forever, increment, decrement, forget, flush, remember, rememberForever]}
+                forbiddenFunctions: [dispatch, dispatch_sync, event, file_put_contents, unlink, mkdir, rmdir, rename, copy, mail, curl_exec, curl_multi_exec, exec, shell_exec, system, passthru]
         postgresqlInstants:
             paths: []
             excludePaths: []
@@ -39,6 +124,25 @@ parameters:
 
 parametersSchema:
     noldors: structure([
+        ?laravel: structure([
+            useCases: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            events: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            jobs: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            listeners: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            notifications: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            observers: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            validators: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            softDeleteModels: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            bulkLifecycleOperations: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            completedEventSuffixes: listOf(string()),
+            validationExceptions: listOf(string()),
+            errorBagClasses: listOf(string()),
+            softDeleteTraits: listOf(string()),
+            validationSideEffects: structure([
+                forbiddenMethods: listOf(structure([class: string(), methods: listOf(string())])),
+                forbiddenFunctions: listOf(string())
+            ])
+        ]),
         ?allowedValidationPaths: listOf(string()),
         postgresqlInstants: structure([
             paths: listOf(string()),

@@ -11,29 +11,39 @@ final class ClassScope
     /**
      * @param list<string> $classes
      * @param list<string> $namespaces
+     * @param list<string> $excludedClasses
+     * @param list<string> $excludedNamespaces
      */
     public function __construct(
         private readonly array $classes = [],
         private readonly array $namespaces = [],
+        private readonly array $excludedClasses = [],
+        private readonly array $excludedNamespaces = [],
     ) {}
 
     public function contains(ClassReflection|null $class): bool
     {
-        if (null === $class) {
-            return false;
-        }
+        return null !== $class
+            && ! $this->matches($class, $this->excludedClasses, $this->excludedNamespaces)
+            && $this->matches($class, $this->classes, $this->namespaces);
+    }
 
-        foreach ($this->classes as $name) {
+    /**
+     * @param list<string> $classes
+     * @param list<string> $namespaces
+     */
+    private function matches(ClassReflection $class, array $classes, array $namespaces): bool
+    {
+        foreach ($classes as $name) {
             $name = \mb_ltrim($name, '\\');
 
-            if (0 === \strcasecmp($class->getName(), $name) || $class->is($name)) {
+            if (\strcasecmp($class->getName(), $name) === 0 || $class->is($name)) {
                 return true;
             }
         }
-
         $name = \mb_strtolower($class->getName());
 
-        foreach ($this->namespaces as $namespace) {
+        foreach ($namespaces as $namespace) {
             $namespace = \mb_strtolower(\mb_trim($namespace, '\\'));
 
             if ('' !== $namespace && \str_starts_with($name, $namespace . '\\')) {
