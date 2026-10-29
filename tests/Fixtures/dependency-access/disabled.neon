@@ -1,0 +1,9 @@
+includes:
+    - phpstan.neon
+parameters:
+    noldors:
+        laravel:
+            useCases:
+                classes!: []
+            dependencyInjection:
+                namespaces!: []

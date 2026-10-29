@@ -1,0 +1,61 @@
+services:
+    noldors.laravel.dependencyInjectionClasses:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.dependencyInjection.classes%
+            namespaces: %noldors.laravel.dependencyInjection.namespaces%
+            excludedClasses: %noldors.laravel.dependencyInjection.excludedClasses%
+            excludedNamespaces: %noldors.laravel.dependencyInjection.excludedNamespaces%
+        autowired: false
+    noldors.laravel.dependencyInjectionScope:
+        class: Noldors\PHPStan\Laravel\DependencyInjectionScope
+        arguments:
+            classes: @noldors.laravel.dependencyInjectionClasses
+            excludedPaths: %noldors.laravel.dependencyInjection.excludedPaths%
+    -
+        class: Noldors\PHPStan\RestrictedUsage\LaravelUseCaseTransportExtension
+        arguments:
+            useCases: @noldors.laravel.useCases
+            transportTypes: %noldors.laravel.useCaseTransportTypes%
+        tags: [phpstan.restrictedClassNameUsageExtension]
+    -
+        class: Noldors\PHPStan\RestrictedUsage\LaravelDependencyAccessExtension
+        arguments:
+            selection: @noldors.laravel.dependencyInjectionScope
+            helpers: %noldors.laravel.dependencyInjection.helpers%
+            allLaravelHelpers: %noldors.laravel.dependencyInjection.allLaravelHelpers%
+            serviceLocatorTypes: %noldors.laravel.dependencyInjection.serviceLocatorTypes%
+            serviceLocatorMethods: %noldors.laravel.dependencyInjection.serviceLocatorMethods%
+        tags: [phpstan.restrictedClassNameUsageExtension, phpstan.restrictedFunctionUsageExtension, phpstan.restrictedMethodUsageExtension]
+    -
+        class: Noldors\PHPStan\Rules\LaravelServiceLocatorOffsetRule
+        arguments:
+            selection: @noldors.laravel.dependencyInjectionScope
+            serviceLocatorTypes: %noldors.laravel.dependencyInjection.serviceLocatorTypes%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelUseCaseActorRule
+        arguments:
+            useCases: @noldors.laravel.useCases
+            globalActorMethods: %noldors.laravel.globalActorMethods%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelUseCaseActorCallableRule
+        arguments:
+            nodeType: PHPStan\Node\MethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelUseCaseActorCallableRule
+        arguments:
+            nodeType: PHPStan\Node\StaticMethodCallableNode
+        autowired: false
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelDynamicFacadeRule
+        arguments:
+            selection: @noldors.laravel.dependencyInjectionScope
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\LaravelDynamicFacadeCallableRule
+        tags: [phpstan.rules.rule]

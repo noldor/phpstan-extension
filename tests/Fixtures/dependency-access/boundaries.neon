@@ -1,0 +1,26 @@
+includes:
+    - phpstan.neon
+parameters:
+    paths!: [Boundaries.php, excluded]
+    noldors:
+        laravel:
+            useCases:
+                classes!: []
+                namespaces: [DependencyAccess\Boundaries]
+                excludedClasses: [DependencyAccess\Boundaries\Excluded]
+            useCaseTransportTypes: [DependencyAccess\Boundaries\CustomTransport]
+            dependencyInjection:
+                namespaces: [DependencyAccess\Boundaries]
+                excludedClasses: [DependencyAccess\Boundaries\Excluded]
+                excludedPaths: [excluded]
+                serviceLocatorTypes: [DependencyAccess\Boundaries\Registry]
+                serviceLocatorMethods: [fetch]
+services:
+    noldors.laravel.useCases:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.useCases.classes%
+            namespaces: %noldors.laravel.useCases.namespaces%
+            excludedClasses: %noldors.laravel.useCases.excludedClasses%
+            excludedNamespaces: %noldors.laravel.useCases.excludedNamespaces%
+        autowired: false
