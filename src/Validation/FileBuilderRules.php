@@ -139,7 +139,7 @@ final class FileBuilderRules
             return false;
         }
         $factor = match (\mb_strtolower($matches[2])) {
-            'kb' => 1, 'mb' => 1_000, 'gb' => 1_000_000, default => 1_000_000_000
+            'kb' => 1, 'mb' => 1_000, 'gb' => 1_000_000, default => 1_000_000_000,
         };
 
         return \round((float) $matches[1] * $factor);

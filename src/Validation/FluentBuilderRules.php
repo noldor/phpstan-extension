@@ -40,10 +40,10 @@ final class FluentBuilderRules
     public function read(string $class, string $factory, array $calls, Scope $scope): RuleSet
     {
         $mapping = match ($class) {
-            'StringRule' => self::STRING, 'Numeric' => self::NUMERIC, default => self::DATE
+            'StringRule' => self::STRING, 'Numeric' => self::NUMERIC, default => self::DATE,
         };
         $base = match ($class) {
-            'StringRule' => 'string', 'Numeric' => 'numeric', default => 'datetime' === $factory ? 'date_format' : 'date'
+            'StringRule' => 'string', 'Numeric' => 'numeric', default => 'datetime' === $factory ? 'date_format' : 'date',
         };
         $rules = [];
         $unknown = false;
