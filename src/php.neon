@@ -3,6 +3,38 @@ includes:
 
 parameters:
     noldors:
+        disabledTlsVerification:
+            excludePaths: []
+            laravelClients: false
+        fullRequestLogging:
+            loggerClasses: [Psr\Log\LoggerInterface]
+            requestClasses: [Symfony\Component\HttpFoundation\Request, Psr\Http\Message\ServerRequestInterface]
+            requestMethods:
+                - {class: Symfony\Component\HttpFoundation\Request, methods: [getContent, toArray, getPayload]}
+                - {class: Psr\Http\Message\ServerRequestInterface, methods: [getParsedBody, getBody]}
+            excludePaths: []
+        assertions:
+            forbiddenMethods:
+                - {class: PDO, methods: [exec]}
+                - {class: PDOStatement, methods: [execute]}
+            forbiddenFunctions: [file_put_contents, fwrite, unlink, mkdir, rmdir, rename, copy, mail, exec, shell_exec, system, passthru]
+        phpunitDataProviders:
+            forbiddenMethods:
+                - {class: PDO, methods: ['*']}
+                - {class: PDOStatement, methods: ['*']}
+                - {class: Psr\Http\Client\ClientInterface, methods: [sendRequest]}
+                - {class: Psr\SimpleCache\CacheInterface, methods: ['*']}
+                - {class: PHPUnit\Framework\TestCase, methods: [createMock, createConfiguredMock, createPartialMock, getMockBuilder, createStub, createConfiguredStub, getStubBuilder, createMockForIntersectionOfInterfaces, createStubForIntersectionOfInterfaces]}
+                - {class: PHPUnit\Framework\MockObject\MockBuilder, methods: [getMock]}
+                - {class: PHPUnit\Framework\MockObject\TestStubBuilder, methods: [getStub]}
+                - {class: Mockery, methods: [mock, spy]}
+            forbiddenFunctions: [file_get_contents, file_put_contents, fopen, fread, fwrite, unlink, mkdir, rmdir, rename, copy, curl_exec, curl_multi_exec, exec, shell_exec, system, passthru, mail]
+        databaseBuilderMocks:
+            classes: []
+            namespaces: []
+            excludedClasses: []
+            excludedNamespaces: []
+            forbiddenTypes: [Illuminate\Database\Eloquent\Builder, Illuminate\Database\Query\Builder, Illuminate\Database\Eloquent\Relations\Relation]
         dependencies:
             classes: []
             namespaces: []
@@ -199,6 +231,24 @@ parametersSchema:
     noldors: structure([
         dependencies: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
         foreignKeys: structure([paths: listOf(string()), excludePaths: listOf(string())]),
+        disabledTlsVerification: structure([excludePaths: listOf(string()), laravelClients: bool()]),
+        fullRequestLogging: structure([
+            loggerClasses: listOf(string()),
+            requestClasses: listOf(string()),
+            requestMethods: listOf(structure([class: string(), methods: listOf(string())])),
+            excludePaths: listOf(string())
+        ]),
+        assertions: structure([
+            forbiddenMethods: listOf(structure([class: string(), methods: listOf(string())])),
+            forbiddenFunctions: listOf(string())
+        ]),
+        phpunitDataProviders: structure([
+            forbiddenMethods: listOf(structure([class: string(), methods: listOf(string())])),
+            forbiddenFunctions: listOf(string())
+        ]),
+        databaseBuilderMocks: structure([
+            classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), forbiddenTypes: listOf(string())
+        ]),
         ?laravel: structure([
             enums: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             enumDirectories: listOf(string()),
@@ -264,6 +314,58 @@ parametersSchema:
     ])
 
 services:
+    noldors.persistenceTestScope:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.databaseBuilderMocks.classes%
+            namespaces: %noldors.databaseBuilderMocks.namespaces%
+            excludedClasses: %noldors.databaseBuilderMocks.excludedClasses%
+            excludedNamespaces: %noldors.databaseBuilderMocks.excludedNamespaces%
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\DisabledTlsVerificationRule
+        arguments:
+            excludePaths: %noldors.disabledTlsVerification.excludePaths%
+            laravelClients: %noldors.disabledTlsVerification.laravelClients%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\FullRequestLoggingRule
+        arguments:
+            loggerClasses: %noldors.fullRequestLogging.loggerClasses%
+            requestClasses: %noldors.fullRequestLogging.requestClasses%
+            requestMethods: %noldors.fullRequestLogging.requestMethods%
+            excludePaths: %noldors.fullRequestLogging.excludePaths%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Assertions\AssertArgumentVisitor
+        tags: [phpstan.parser.richParserNodeVisitor]
+    -
+        class: Noldors\PHPStan\Rules\NoSideEffectsInAssertRule
+        arguments:
+            forbiddenMethods: %noldors.assertions.forbiddenMethods%
+            forbiddenFunctions: %noldors.assertions.forbiddenFunctions%
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\PHPUnit\PHPUnitProviderExecutionVisitor
+        tags: [phpstan.parser.richParserNodeVisitor]
+    -
+        class: Noldors\PHPStan\Collectors\PHPUnitDataProviderCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\PHPUnitProviderEffectCollector
+        arguments:
+            forbiddenMethods: %noldors.phpunitDataProviders.forbiddenMethods%
+            forbiddenFunctions: %noldors.phpunitDataProviders.forbiddenFunctions%
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Rules\PHPUnitDataProviderSideEffectsRule
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\NoDatabaseBuilderMocksRule
+        arguments:
+            tests: @noldors.persistenceTestScope
+            forbiddenTypes: %noldors.databaseBuilderMocks.forbiddenTypes%
+        tags: [phpstan.rules.rule]
     noldors.collectionOwners:
         class: Noldors\PHPStan\Configuration\ClassScope
         arguments:

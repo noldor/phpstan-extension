@@ -26,8 +26,15 @@ configuration when analysing Laravel APIs.
 | `MutableCollectionExposureRule` | `encapsulation.mutableCollectionExposure` | [Mutable collections](rules/mutable-collection-exposure.md) |
 | `DtoInfrastructureUsageExtension` | `architecture.dtoInfrastructureUsage` | [DTO infrastructure usage](rules/dto-infrastructure-usage.md) |
 | `InjectedDependencyRule` | `api.dependencyPromotion`, `api.dependencyReadonly` | [Constructor dependencies](rules/constructor-dependencies.md) |
+| `DisabledTlsVerificationRule` | `security.disabledTlsVerification` | [Disabled TLS verification](rules/disabled-tls-verification.md) |
+| `FullRequestLoggingRule` | `logging.fullRequestPayload` | [Full request logging](rules/full-request-logging.md) |
+| `NoSideEffectsInAssertRule` | `assert.sideEffect` | [Assertion side effects](rules/no-side-effects-in-assert.md) |
+| PHPUnit provider collectors and rule | `phpunit.providerSideEffect` | [Data provider side effects](rules/phpunit-data-provider-side-effects.md) |
+| `NoDatabaseBuilderMocksRule` | `phpunit.databaseBuilderMock` | [Database builder mocks](rules/no-database-builder-mocks.md) |
 
-Reference-parameter, exception-translation and JSON-flag checks run when a set is connected.
+Reference-parameter, exception-translation, JSON-flag, TLS, logging, assertion and
+PHPUnit-provider checks run when a set is connected. Database builder mock checks
+require explicit persistence-test class/namespace scopes; they are empty by default.
 Collection owners and DTO scopes are empty by default; configure the classes,
 interfaces or namespaces that actually have those contracts in the consuming
 project. The package does not guess class roles from suffixes or application

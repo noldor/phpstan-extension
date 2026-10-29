@@ -9,6 +9,47 @@ includes:
 
 parameters:
     noldors:
+        disabledTlsVerification:
+            laravelClients: true
+        fullRequestLogging:
+            loggerClasses: [Illuminate\Support\Facades\Log]
+            requestMethods:
+                - {class: Illuminate\Http\Request, methods: [all, json]}
+        assertions:
+            forbiddenMethods:
+                - {class: Illuminate\Database\Eloquent\Model, methods: [save, saveOrFail, saveQuietly, update, delete, deleteQuietly, forceDelete, restore, push, increment, decrement, touch]}
+                - {class: Illuminate\Database\Eloquent\Builder, methods: [create, firstOrCreate, updateOrCreate, upsert, update, delete, forceDelete, restore, increment, decrement]}
+                - {class: Illuminate\Database\Query\Builder, methods: [insert, insertGetId, insertOrIgnore, update, updateOrInsert, upsert, delete, truncate, increment, decrement]}
+                - {class: Illuminate\Database\Eloquent\Relations\Relation, methods: [save, saveMany, create, createMany, touch]}
+                - {class: Illuminate\Database\Eloquent\Relations\BelongsToMany, methods: [attach, detach, sync, syncWithoutDetaching, toggle, updateExistingPivot]}
+                - {class: Illuminate\Database\ConnectionInterface, methods: [insert, update, delete, statement, unprepared, affectingStatement]}
+                - {class: Illuminate\Support\Facades\DB, methods: [insert, update, delete, statement, unprepared, affectingStatement]}
+                - {class: Illuminate\Contracts\Bus\Dispatcher, methods: [dispatch, dispatchSync, dispatchNow, dispatchToQueue]}
+                - {class: Illuminate\Contracts\Events\Dispatcher, methods: [dispatch, until]}
+                - {class: Illuminate\Contracts\Filesystem\Filesystem, methods: [put, writeStream, delete, copy, move]}
+                - {class: Illuminate\Contracts\Cache\Repository, methods: [put, putMany, add, forever, increment, decrement, forget, flush]}
+            forbiddenFunctions: [dispatch, dispatch_sync, event]
+        phpunitDataProviders:
+            forbiddenMethods:
+                - {class: Illuminate\Database\Eloquent\Model, methods: [all, find, findOrFail, first, get, save, saveQuietly, delete, create]}
+                - {class: Illuminate\Database\Eloquent\Factories\Factory, methods: [create, createQuietly, createOne, createOneQuietly, createMany, createManyQuietly, insert]}
+                - {class: Illuminate\Database\Eloquent\Builder, methods: [get, first, firstOrFail, find, findOrFail, count, exists, pluck, value, create, firstOrCreate, createOrFirst, updateOrCreate, upsert, forceCreate, update, delete, cursor, paginate, simplePaginate, cursorPaginate]}
+                - {class: Illuminate\Database\Query\Builder, methods: [get, first, count, exists, pluck, value, sum, min, max, avg, insert, insertGetId, update, updateOrInsert, upsert, delete, truncate, cursor, paginate, simplePaginate, cursorPaginate]}
+                - {class: Illuminate\Database\ConnectionInterface, methods: ['*']}
+                - {class: Illuminate\Support\Facades\DB, methods: ['*']}
+                - {class: Illuminate\Http\Client\Factory, methods: [send, get, head, post, put, patch, delete, options]}
+                - {class: Illuminate\Http\Client\PendingRequest, methods: [send, get, head, post, put, patch, delete, options]}
+                - {class: Illuminate\Support\Facades\Http, methods: [send, get, head, post, put, patch, delete, options]}
+                - {class: Illuminate\Contracts\Filesystem\Filesystem, methods: ['*']}
+                - {class: Illuminate\Support\Facades\Storage, methods: ['*']}
+                - {class: Illuminate\Foundation\Testing\Concerns\InteractsWithContainer, methods: [mock, partialMock, spy]}
+                - {class: Illuminate\Contracts\Bus\Dispatcher, methods: [dispatch, dispatchSync, dispatchNow, dispatchToQueue]}
+                - {class: Illuminate\Contracts\Events\Dispatcher, methods: [dispatch, until, push, flush]}
+                - {class: Illuminate\Contracts\Queue\Queue, methods: [push, pushOn, later, laterOn, bulk]}
+                - {class: Illuminate\Contracts\Mail\Mailer, methods: [raw, send, sendNow]}
+                - {class: Illuminate\Contracts\Mail\MailQueue, methods: [queue, later]}
+                - {class: Illuminate\Contracts\Notifications\Dispatcher, methods: [send, sendNow]}
+            forbiddenFunctions: [dispatch, dispatch_sync, event]
         allowedValidationPaths:
             - app/GraphQL/Validators
             - app/Http/Requests

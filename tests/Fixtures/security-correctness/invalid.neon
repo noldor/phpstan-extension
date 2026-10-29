@@ -1,0 +1,6 @@
+includes:
+    - php.neon
+parameters:
+    noldors:
+        databaseBuilderMocks:
+            forbiddenTypes: 123

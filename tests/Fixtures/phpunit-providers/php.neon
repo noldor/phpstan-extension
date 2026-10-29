@@ -1,0 +1,7 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    paths: [Cases.php, ExternalProviders.php, InheritedCases.php]
+    tmpDir: ../../../build/phpunit-providers-php
