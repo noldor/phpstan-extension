@@ -12,9 +12,16 @@ use Noldors\PHPStan\Validation\FieldOrder;
 use Noldors\PHPStan\Validation\MethodArrays;
 use Noldors\PHPStan\Configuration\ClassScope;
 use Noldors\PHPStan\Validation\Configuration;
+use Noldors\PHPStan\Validation\RuleListItems;
 use Noldors\PHPStan\Validation\ConstantSource;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Noldors\PHPStan\Validation\MessageCoverage;
+use Noldors\PHPStan\Validation\RuleExpressions;
+use Noldors\PHPStan\Validation\FileBuilderRules;
+use Noldors\PHPStan\Validation\FluentBuilderRules;
+use Noldors\PHPStan\Validation\NestedBuilderRules;
+use Noldors\PHPStan\Validation\BuiltinBuilderRules;
+use Noldors\PHPStan\Validation\SizeMessageBranches;
 use Noldors\PHPStan\Rules\LaravelValidationContractRule;
 
 /**
@@ -29,6 +36,51 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
             'Provide an explicit public validation message for title.max.',
             'Provide an explicit public validation message for ownerId.exists.',
         ], \array_map(static fn ($error): string => $error->getMessage(), $errors));
+    }
+
+    public function testSizeMessagesCoverOnlyTheirReachableRuntimeBranches(): void
+    {
+        $this->assertMissingPairs('SizeBranches.php', ['name.max', 'required.required', 'nullValue.required', 'name.max']);
+    }
+
+    public function testBuiltinBuilderProvenanceRetainsEveryExplicitFailure(): void
+    {
+        $this->assertMissingPairs('BuiltinObjects.php', [
+            'name.min', 'picture.dimensions', 'count.numeric',
+            'mail.email', 'mail.max', 'date.date_format', 'date.before', 'date.after_or_equal', 'date.before_or_equal',
+            'ip.ipv4', 'text.string', 'text.alpha_num', 'text.min', 'text.max',
+            'number.numeric', 'number.integer', 'number.gt', 'number.min_digits',
+            'file.file', 'file.mimetypes', 'file.mimes', 'file.extensions', 'file.between', 'file.encoding',
+            'image.file', 'image.image', 'image.dimensions',
+            'password.string', 'password.min', 'password.max', 'password.password.mixed', 'password.password.letters',
+            'password.password.numbers', 'password.password.symbols', 'password.password.uncompromised',
+            'direct.dimensions', 'direct.numeric', 'required.required', 'requiredUnless.required',
+            'prohibited.prohibited', 'prohibitedUnless.prohibited',
+        ]);
+    }
+
+    public function testBuiltinFactoryCatalogIsNotTreatedAsCustomMessageOwnership(): void
+    {
+        $this->assertMissingPairs('BuiltinCatalog.php', [
+            'accepted.accepted', 'activeUrl.active_url', 'base64.base64', 'boolean.boolean', 'declined.declined',
+            'filled.filled', 'hexColor.hex_color', 'json.json', 'list.list', 'macAddress.mac_address',
+            'missing.missing', 'present.present', 'prohibited.prohibited', 'required.required', 'ulid.ulid',
+            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.can', 'confirmed.confirmed', 'contains.contains',
+            'currentPassword.current_password', 'declinedIf.declined_if', 'distinct.distinct', 'doesntContain.doesnt_contain',
+            'enum.enum', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
+            'missingIf.missing_if', 'missingUnless.missing_unless', 'missingWith.missing_with', 'missingWithAll.missing_with_all',
+            'notIn.not_in', 'notRegex.not_regex', 'presentIf.present_if', 'presentUnless.present_unless',
+            'presentWith.present_with', 'presentWithAll.present_with_all', 'prohibitedIfAccepted.prohibited_if_accepted',
+            'prohibitedIfDeclined.prohibited_if_declined', 'prohibits.prohibits', 'regex.regex', 'requiredArrayKeys.required_array_keys',
+            'requiredIfAccepted.required_if_accepted', 'requiredIfDeclined.required_if_declined', 'requiredWith.required_with',
+            'requiredWithAll.required_with_all', 'requiredWithout.required_without', 'requiredWithoutAll.required_without_all',
+            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.any_of',
+        ]);
+    }
+
+    public function testBuiltinBoundariesPreserveNativeCompositionAndNestedContexts(): void
+    {
+        $this->assertMissingPairs('BuiltinBoundaries.php', ['upload.max', 'mergedBuiltin.min', 'conditional.min']);
     }
 
     /**
@@ -73,12 +125,13 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
         $arrays = new MethodArrays(new MethodSource(self::getParser()), new ConstantSource(self::getParser()), self::createReflectionProvider());
         $paths = new Paths($arrays);
         $names = new RuleNames(self::createReflectionProvider());
+        $expressions = new RuleExpressions($arrays, $names, new BuiltinBuilderRules($names, new FluentBuilderRules(), new FileBuilderRules(), new NestedBuilderRules()), new RuleListItems());
 
         return new LaravelValidationContractRule(
             new ClassScope(namespaces: ['ValidationContractFixtures'], excludedClasses: ['ValidationContractFixtures\\Excluded']),
             $arrays,
             new FieldOrder($paths),
-            new MessageCoverage($names, $paths),
+            new MessageCoverage($names, $paths, $expressions, new SizeMessageBranches()),
             $paths,
             $names,
             new Configuration(
@@ -86,5 +139,14 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
                 [['class' => 'ValidationContractFixtures\\InputBound', 'fields' => ['ownerId']], ['class' => 'ValidationContractFixtures\\ActualNestedInput', 'fields' => ['input']]],
             ),
         );
+    }
+
+    /**
+     * @param list<string> $pairs
+     */
+    private function assertMissingPairs(string $file, array $pairs): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/' . $file]);
+        $this->assertSame(\array_map(static fn (string $pair): string => 'Provide an explicit public validation message for ' . $pair . '.', $pairs), \array_map(static fn ($error): string => $error->getMessage(), $errors));
     }
 }

@@ -7,6 +7,13 @@ services:
     - Noldors\PHPStan\Validation\Paths
     - Noldors\PHPStan\Validation\FieldOrder
     - Noldors\PHPStan\Validation\RuleNames
+    - Noldors\PHPStan\Validation\RuleExpressions
+    - Noldors\PHPStan\Validation\RuleListItems
+    - Noldors\PHPStan\Validation\BuiltinBuilderRules
+    - Noldors\PHPStan\Validation\FluentBuilderRules
+    - Noldors\PHPStan\Validation\FileBuilderRules
+    - Noldors\PHPStan\Validation\NestedBuilderRules
+    - Noldors\PHPStan\Validation\SizeMessageBranches
     - Noldors\PHPStan\Validation\MessageCoverage
     -
         class: Noldors\PHPStan\Validation\Configuration

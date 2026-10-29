@@ -86,19 +86,38 @@ messages. Standard aliases `int` and `bool` use the `integer` and `boolean`
 message keys. Strings inside rule arrays keep regex pipes intact; top-level
 pipe-delimited rule strings follow Laravel's normal splitting behavior.
 
-The first version recognizes standard string rules supported by the installed
-Laravel validator and these direct built-in object contracts: `Exists`, `Unique`,
-`In`, `NotIn`, `Enum`, `ArrayRule` and the base `StringRule` constraint. Unknown
-custom string rules, conditional object builders and unrecognized compound
-builder constraints are not guessed. Custom subclasses are not assumed to have
-their parent's rule semantics. These cases still require review or an explicit
-known string rule. The presence of a translation call is accepted without loading
-or verifying the runtime translation catalog.
+Standard string rules are recognized through the installed Laravel validator.
+Literal native factory calls and built-in rule objects retain their own message
+requirements. This includes presence, acceptance, containment, comparison,
+database, authorization, enum, regular expression, format and dimension rules.
+`Rule::string()->min(3)`, for example, requires both `field.string` and
+`field.min`; `Rule::numeric()` requires `field.numeric`, and
+`Rule::dimensions(...)` requires `field.dimensions`.
 
-Nested field/rule message maps and size-specific submaps are accepted. A literal
-empty message does not establish coverage. Wildcard matching follows Laravel's
-single-path-segment message matching; a concrete index message does not establish
-coverage for every element of a wildcard rule.
+The check also reads statically declared fluent constraints on Laravel's
+`StringRule`, `Numeric`, `Date`, `File`, `ImageFile`, `Email`, `Password` and
+`IpAddress` builders. Date formats, file MIME types/extensions/size bounds,
+password complexity, additional `rules(...)` and literal boolean
+`Rule::when(...)`/`Rule::unless(...)` branches are included. Repeated setters
+follow the native replacement or append behavior. File, email and password rules
+run their internal validator in a separate rule context; an outer `numeric` or
+`bail` declaration does not change that internal context. No rule object or
+application callback is executed.
+
+Nested field/rule message maps and Laravel's size-specific submaps are accepted
+only when they cover the branches that can fail. A direct `field.max` message
+covers every branch. A numeric rule can use `field.max.numeric`; array/list rules
+can use `field.max.array`. Other size checks may receive either a string or a
+file, so provide both `string` and `file` entries unless `bail` and an earlier
+string/file constraint guarantee a single branch. A `string` rule alone does not
+prevent a later size rule from failing on an uploaded file. An arbitrary
+descendant such as `field.required.unused` never covers `field.required`.
+
+Literal empty and null messages do not establish coverage. Translation calls
+are accepted without loading or verifying the runtime translation catalog.
+Wildcard matching follows Laravel's single-path-segment message matching; a
+concrete index message does not establish coverage for every element of a
+wildcard rule.
 
 ## Static analysis limits
 
@@ -111,6 +130,16 @@ treated as unknown. Numeric root keys are also left outside the string-path
 contract. An unresolved `messages()` return does not prove that messages
 are missing. Unknown rule objects do not suppress checks for other known standard
 rules in the same field's literal rule list.
+
+Compound builder analysis requires a literal native constructor or factory and
+its directly chained calls. Rules added by an application factory, later object
+mutation, a macro, a callback, `Rule::forEach(...)`, an unresolved conditional
+branch or callback-configured password defaults remain unknown. Dynamic file
+types or bounds do not invent a particular MIME or size constraint. Known base
+rules and other explicitly resolved constraints are still checked. Custom
+subclasses are not assumed to have their parent's semantics, and unknown custom
+string rules are left to application-specific checks. These unresolved portions
+require review or explicit known rule declarations.
 
 The check verifies declarations and keys, not message accuracy, translation
 availability, actual failing requests or public error-path behavior. Keep endpoint

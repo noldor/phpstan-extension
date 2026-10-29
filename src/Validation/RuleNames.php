@@ -13,9 +13,16 @@ final class RuleNames
     private const array CONTROLS = ['bail', 'nullable', 'sometimes', 'exclude', 'exclude_if', 'exclude_unless', 'exclude_with', 'exclude_without'];
 
     private const array BUILDERS = [
-        'Exists' => 'exists', 'Unique' => 'unique', 'In' => 'in', 'NotIn' => 'not_in',
-        'Enum' => 'enum', 'ArrayRule' => 'array', 'StringRule' => 'string',
+        'AcceptedIf', 'ArrayKeys', 'Can', 'Confirmed', 'Contains', 'CurrentPassword', 'DeclinedIf',
+        'Dimensions', 'Distinct', 'DoesntContain', 'Email', 'Enum', 'Exists', 'In', 'InArray',
+        'InArrayKeys', 'MissingIf', 'MissingUnless', 'MissingWith', 'MissingWithAll', 'NotIn', 'NotRegex',
+        'PresentIf', 'PresentUnless', 'PresentWith', 'PresentWithAll', 'ProhibitedIfAccepted',
+        'ProhibitedIfDeclined', 'Prohibits', 'Regex', 'RequiredArrayKeys', 'RequiredIfAccepted',
+        'RequiredIfDeclined', 'RequiredWith', 'RequiredWithAll', 'RequiredWithout', 'RequiredWithoutAll',
+        'Timezone', 'Unique', 'Url', 'Uuid', 'AnyOf', 'Numeric',
     ];
+
+    private const array OBJECT_FAILURES = ['can', 'enum', 'any_of', 'password.mixed', 'password.letters', 'password.numbers', 'password.symbols', 'password.uncompromised'];
 
     public function __construct(
         private readonly ReflectionProvider $reflection,
@@ -26,16 +33,29 @@ final class RuleNames
      */
     public function failingRules(Type $type, bool $split = true): array
     {
+        return \array_values(\array_filter($this->allRules($type, $split), $this->fails(...)));
+    }
+
+    public function fails(string $name): bool
+    {
+        return ! \in_array($name, self::CONTROLS, true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function allRules(Type $type, bool $split = true): array
+    {
         $arrays = $type->getConstantArrays();
 
         if ($type->isConstantArray()->yes() && 1 === \count($arrays) && [] === $arrays[0]->getOptionalKeys()) {
             $rules = [];
 
             foreach ($arrays[0]->getValueTypes() as $value) {
-                $rules = [...$rules, ...$this->failingRules($value, false)];
+                $rules = [...$rules, ...$this->allRules($value, false)];
             }
 
-            return \array_values(\array_unique($rules));
+            return $rules;
         }
         $strings = $type->getConstantStrings();
 
@@ -53,6 +73,10 @@ final class RuleNames
 
     private function canonicalName(string $name): string|null
     {
+        if (\in_array(\mb_strtolower($name), [...self::OBJECT_FAILURES, ...self::CONTROLS], true)) {
+            return \mb_strtolower($name);
+        }
+
         if (! $this->reflection->hasClass(Validator::class)) {
             return null;
         }
@@ -80,7 +104,7 @@ final class RuleNames
         foreach ($split ? \explode('|', $definition) : [$definition] as $rule) {
             $name = $this->canonicalName(\mb_trim(\explode(':', $rule, 2)[0]));
 
-            if (null !== $name && ! \in_array($name, self::CONTROLS, true)) {
+            if (null !== $name) {
                 $rules[] = $name;
             }
         }
@@ -99,15 +123,20 @@ final class RuleNames
             return [];
         }
 
-        foreach ($classes as $class) {
-            foreach (self::BUILDERS as $builder => $rule) {
-                if (0 === \strcasecmp($class->getName(), 'Illuminate\\Validation\\Rules\\' . $builder)) {
-                    return [$rule];
-                }
+        $class = $classes[0];
+
+        foreach (self::BUILDERS as $builder) {
+            if (0 === \strcasecmp($class->getName(), 'Illuminate\\Validation\\Rules\\' . $builder)) {
+                return [\mb_strtolower((string) \preg_replace('/(?<!^)[A-Z]/', '_$0', $builder))];
             }
         }
 
-        // Application rule objects and closures own their public messages.
-        return [];
+        return match ($class->getName()) {
+            'Illuminate\\Validation\\Rules\\ArrayRule' => ['array'],
+            'Illuminate\\Validation\\Rules\\StringRule' => ['string'],
+            'Illuminate\\Validation\\Rules\\File', 'Illuminate\\Validation\\Rules\\ImageFile' => ['file'],
+            // Application rule objects and closures own their public messages.
+            default => [],
+        };
     }
 }

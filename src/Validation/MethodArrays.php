@@ -28,6 +28,16 @@ final class MethodArrays
      */
     public function read(ClassReflection $class, string $method, Scope $scope): array|null
     {
+        $expressions = $this->expressions($class, $method, $scope);
+
+        return null === $expressions ? null : \array_map(static fn (Node\Expr $expression): Type => $scope->getType($expression), $expressions);
+    }
+
+    /**
+     * @return array<string, Node\Expr>|null
+     */
+    public function expressions(ClassReflection $class, string $method, Scope $scope): array|null
+    {
         if (! $class->hasNativeMethod($method)) {
             return [];
         }
@@ -39,7 +49,7 @@ final class MethodArrays
         $owner = $class->getNativeMethod($method)->getDeclaringClass()->getName();
         $expression = $this->returnedExpression($declaration, $owner);
 
-        return null === $expression ? null : $this->expressionEntries($expression, $scope);
+        return null === $expression ? null : $this->expressionValues($expression, $scope);
     }
 
     /**
@@ -69,17 +79,17 @@ final class MethodArrays
     /**
      * @param list<string> $seen
      *
-     * @return array<string, Type>|null
+     * @return array<string, Node\Expr>|null
      */
-    private function expressionEntries(Node\Expr $expression, Scope $scope, array $seen = []): array|null
+    private function expressionValues(Node\Expr $expression, Scope $scope, array $seen = []): array|null
     {
         if ($expression instanceof Node\Expr\ClassConstFetch) {
-            return $this->constantEntries($expression, $scope, $seen);
+            return $this->constantValues($expression, $scope, $seen);
         }
 
         if ($expression instanceof Node\Expr\BinaryOp\Plus) {
-            $left = $this->expressionEntries($expression->left, $scope, $seen);
-            $right = $this->expressionEntries($expression->right, $scope, $seen);
+            $left = $this->expressionValues($expression->left, $scope, $seen);
+            $right = $this->expressionValues($expression->right, $scope, $seen);
 
             return null === $left || null === $right ? null : $left + $right;
         }
@@ -90,7 +100,7 @@ final class MethodArrays
         $entries = [];
 
         foreach ($expression->items as $item) {
-            $itemEntries = $this->itemEntries($item, $scope, $seen);
+            $itemEntries = $this->itemValues($item, $scope, $seen);
 
             if (null === $itemEntries) {
                 return null;
@@ -104,24 +114,24 @@ final class MethodArrays
     /**
      * @param list<string> $seen
      *
-     * @return array<string, Type>|null
+     * @return array<string, Node\Expr>|null
      */
-    private function itemEntries(Node\ArrayItem $item, Scope $scope, array $seen): array|null
+    private function itemValues(Node\ArrayItem $item, Scope $scope, array $seen): array|null
     {
         if ($item->unpack) {
-            return $this->expressionEntries($item->value, $scope, $seen);
+            return $this->expressionValues($item->value, $scope, $seen);
         }
         $keys = null === $item->key ? [] : $scope->getType($item->key)->toArrayKey()->getConstantStrings();
 
-        return 1 === \count($keys) ? [$keys[0]->getValue() => $scope->getType($item->value)] : null;
+        return 1 === \count($keys) ? [$keys[0]->getValue() => $item->value] : null;
     }
 
     /**
      * @param list<string> $seen
      *
-     * @return array<string, Type>|null
+     * @return array<string, Node\Expr>|null
      */
-    private function constantEntries(Node\Expr\ClassConstFetch $expression, Scope $scope, array $seen): array|null
+    private function constantValues(Node\Expr\ClassConstFetch $expression, Scope $scope, array $seen): array|null
     {
         if (! $expression->class instanceof Node\Name || ! $expression->name instanceof Node\Identifier) {
             return null;
@@ -138,7 +148,7 @@ final class MethodArrays
         }
         $constant = $this->constants->find($classes[0], $expression->name->toString());
 
-        return null === $constant ? null : $this->expressionEntries($this->substitute($constant['expression'], [], $constant['owner']->getName()), $scope, [...$seen, $key]);
+        return null === $constant ? null : $this->expressionValues($this->substitute($constant['expression'], [], $constant['owner']->getName()), $scope, [...$seen, $key]);
     }
 
     private function returnedExpression(Node\Stmt\ClassMethod $method, string $owner): Node\Expr|null

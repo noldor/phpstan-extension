@@ -58,7 +58,7 @@ final class LaravelValidationContractRule implements Rule
         $errors = $this->methodOrder($declaration);
         $errors = [...$errors, ...$this->fieldOrder($class, $definitions['rules'], $messages, $definitions['attributes'])];
 
-        foreach ($this->coverage->missing($definitions['rules'], $messages) as $key) {
+        foreach ($this->coverage->missing($class, $scope, $messages) as $key) {
             $errors[] = $this->error('Provide an explicit public validation message for ' . $key . '.', 'messageCoverage');
         }
 
