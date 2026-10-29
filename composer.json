@@ -13,12 +13,13 @@
     "require": {
         "php": ">=8.5",
         "ext-mbstring": "*",
+        "phpstan/phpdoc-parser": "^2.0",
         "phpstan/phpstan": "^2.3"
     },
     "require-dev": {
         "denzyl/phanalist": "^1.1",
-        "larastan/larastan": "^3.0",
-        "laravel/framework": "^13.0",
+        "larastan/larastan": "^3.13.2",
+        "laravel/framework": "^13.38",
         "laravel/pint": "^1.27",
         "phpunit/phpunit": "^13.0",
         "symfony/polyfill-iconv": "^1.37"
@@ -66,5 +67,8 @@
             "!/src",
             "!/src/**"
         ]
+    },
+    "suggest": {
+        "larastan/larastan": "^3.13.2 is required for the optional Eloquent property bridge."
     }
 }

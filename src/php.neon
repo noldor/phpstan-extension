@@ -85,6 +85,20 @@ parameters:
                     - {class: Illuminate\Support\Facades\Storage, methods: [put, writeStream, delete, deleteDirectory, makeDirectory, copy, move, setVisibility]}
                     - {class: Illuminate\Support\Facades\Cache, methods: [put, putMany, add, forever, increment, decrement, forget, flush, remember, rememberForever]}
                 forbiddenFunctions: [dispatch, dispatch_sync, event, file_put_contents, unlink, mkdir, rmdir, rename, copy, mail, curl_exec, curl_multi_exec, exec, shell_exec, system, passthru]
+        eloquent:
+            modelClasses: []
+            modelNamespaces: []
+            excludeModels: []
+            observerClasses: []
+            observerNamespaces: []
+            databaseDateFormat: 'Y-m-d\TH:i:s.uP'
+            jsonDateFormat: 'Y-m-d\TH:i:s.uP'
+            trustedDateSerializers: []
+            morphTypeColumns: []
+            dynamicConfiguration: []
+            dateCastExceptions: []
+            writableProperties: []
+            queryProperties: []
         postgresqlInstants:
             paths: []
             excludePaths: []
@@ -142,6 +156,21 @@ parametersSchema:
                 forbiddenMethods: listOf(structure([class: string(), methods: listOf(string())])),
                 forbiddenFunctions: listOf(string())
             ])
+        ]),
+        eloquent: structure([
+            modelClasses: listOf(string()),
+            modelNamespaces: listOf(string()),
+            excludeModels: listOf(string()),
+            observerClasses: listOf(string()),
+            observerNamespaces: listOf(string()),
+            databaseDateFormat: string(),
+            jsonDateFormat: string(),
+            trustedDateSerializers: listOf(string()),
+            morphTypeColumns: listOf(string()),
+            dynamicConfiguration: listOf(structure([class: string(), properties: listOf(string())])),
+            dateCastExceptions: listOf(structure([class: string(), properties: listOf(string())])),
+            writableProperties: listOf(structure([class: string(), properties: listOf(string())])),
+            queryProperties: listOf(structure([class: string(), properties: listOf(string())]))
         ]),
         ?allowedValidationPaths: listOf(string()),
         postgresqlInstants: structure([

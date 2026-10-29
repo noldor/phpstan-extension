@@ -1,0 +1,5 @@
+includes:
+    - bridge.neon
+parameters:
+    paths: [PropertiesValid.php]
+    scanFiles: [CoreValid.php, PivotsValid.php]

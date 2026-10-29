@@ -1,0 +1,5 @@
+includes:
+    - bridge.neon
+parameters:
+    paths: [SecondReviewInvalid.php]
+    scanFiles: [CoreValid.php]

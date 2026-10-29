@@ -1,0 +1,6 @@
+includes:
+    - ../../../src/php.neon
+parameters:
+    level: 0
+    paths: [CoreInvalid.php]
+    tmpDir: ../../../build/eloquent-php

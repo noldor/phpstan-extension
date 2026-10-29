@@ -1,0 +1,36 @@
+includes:
+    - laravel.neon
+
+parameters:
+    parseModelCastsMethod: true
+
+services:
+    -
+        class: Noldors\PHPStan\Larastan\MigrationNullability
+        arguments:
+            parser: @currentPhpVersionSimpleDirectParser
+            disableMigrationScan: %disableMigrationScan%
+    - Noldors\PHPStan\Eloquent\AccessorShape
+    - Noldors\PHPStan\Eloquent\PropertyDoc
+    - Noldors\PHPStan\Larastan\PropertyTypeCheck
+    -
+        class: Noldors\PHPStan\Larastan\ModelPropertyMetadata
+        arguments:
+            dynamicConfiguration: @noldors.dynamicModelConfiguration
+    noldors.writableModelProperties:
+        class: Noldors\PHPStan\Eloquent\PropertyExceptions
+        arguments: [%noldors.eloquent.writableProperties%]
+        autowired: false
+    noldors.queryModelProperties:
+        class: Noldors\PHPStan\Eloquent\PropertyExceptions
+        arguments: [%noldors.eloquent.queryProperties%]
+        autowired: false
+    -
+        class: Noldors\PHPStan\Rules\EloquentPropertyDocRule
+        arguments:
+            writableProperties: @noldors.writableModelProperties
+            queryProperties: @noldors.queryModelProperties
+        tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Rules\EloquentComputedAttributeRule
+        tags: [phpstan.rules.rule]

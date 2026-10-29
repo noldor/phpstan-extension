@@ -1,0 +1,5 @@
+includes:
+    - base.neon
+parameters:
+    paths: [RegistrationsInvalid.php]
+    scanFiles: [CoreValid.php, PivotsValid.php]

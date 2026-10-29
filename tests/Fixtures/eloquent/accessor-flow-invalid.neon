@@ -1,0 +1,6 @@
+includes:
+    - bridge.neon
+parameters:
+    level: max
+    paths: [AccessorFlowInvalid.php]
+    scanFiles: [CoreValid.php]

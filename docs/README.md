@@ -6,6 +6,7 @@
 | --- | --- | --- |
 | PHP | `src/php.neon` | Reference parameters, exception translation, JSON error flags, configured collection ownership and DTO infrastructure restrictions. |
 | Laravel | `src/laravel.neon` | Includes PHP, adds Laravel DTO infrastructure selectors, enables validation rules and provides a configurable PostgreSQL instant check. |
+| Eloquent property bridge | `src/laravel-model-properties.neon` | Includes Laravel and adds computed-accessor and schema-aware PHPDoc checks; requires a separately included Larastan extension. |
 
 Include one set in your PHPStan configuration. The Laravel set already includes
 PHP; including both files separately is unnecessary. The package does not enable
@@ -52,6 +53,10 @@ the selectors for the project's installed APIs as described in the rule docs.
 | `LaravelJobPayloadRule` and assignment rule | [Job payloads](rules/laravel-job-payload.md) |
 | `LaravelBulkLifecycleRule` | [Bulk lifecycle operations](rules/laravel-bulk-lifecycle.md) |
 | `LaravelValidationSideEffectsExtension` | [Validation side effects](rules/laravel-validation-side-effects.md) |
+| Eloquent model rules and collectors | [Models, observers, dates, PHPDoc, morph aliases and pivots](rules/eloquent-models.md) |
+
+The Eloquent model scope is empty by default. Its [attribute catalog](laravel-attributes.md)
+lists all 25 Laravel 13.38 Eloquent attributes and their recommended uses.
 
 Application-contract scopes are empty by default; see [scope configuration and compatibility](laravel-application.md).
 
