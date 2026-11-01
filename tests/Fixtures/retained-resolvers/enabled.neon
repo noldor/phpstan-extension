@@ -1,0 +1,28 @@
+includes:
+    - base.neon
+
+parameters:
+    noldors:
+        laravel:
+            retainedResolvers:
+                namespaces: [Retained\Roots]
+                excludedClasses: [Retained\Roots\Excluded]
+                bindingSourcePaths: [Providers.php]
+                safeClasses: [Retained\Services\NativeBoundary, Illuminate\Http\Request, Retained\Services\Unknown, ArrayIterator, Retained\Services\SafeBase]
+                implementations:
+                    - {abstract: Retained\Services\Mapped, concretes: [Retained\Services\UnsafeService]}
+                    - {abstract: Retained\Services\MappedFactory, concretes: [Retained\Services\SafeService]}
+                    - {abstract: Retained\Services\NativeContract, concretes: [Retained\Services\NativeBoundary]}
+                reviewedFactories:
+                    - {abstract: Retained\Services\ReviewedFactory, concretes: [Retained\Services\SafeService]}
+                    - {abstract: Retained\Services\UnsafeFactory, concretes: [Retained\Services\UnsafeService]}
+                    - {abstract: Retained\Services\ReviewedScalarFactory, concretes: [Retained\Services\ScalarProduct]}
+                    - {abstract: Retained\Services\NamedOffsetProduct, concretes: [Retained\Services\NamedOffsetProduct]}
+                    - {abstract: Retained\Services\AliasReviewedProduct, concretes: [Retained\Services\AliasReviewedProduct]}
+                    - {abstract: Retained\Services\ReviewedAliasProduct, concretes: [Retained\Services\ReviewedAliasProduct]}
+                    - {abstract: reviewed.client, concretes: [Retained\Services\ReviewedKeyProduct]}
+                    - {abstract: reviewed.unsafe.client, concretes: [Retained\Services\ReviewedUnsafeKeyProduct]}
+                    - {abstract: Retained\Services\ReviewedCycleA, concretes: [Retained\Services\ReviewedCycleProduct]}
+                    - {abstract: Retained\Services\OverlapProduct, concretes: [Retained\Services\OverlapProduct, Retained\Services\OverlapDependency]}
+                    - {abstract: Retained\Services\OverlapAliasA, concretes: [Retained\Services\OverlapAliasB]}
+                    - {abstract: Retained\Services\HookAliasOther, concretes: [Retained\Services\HookAliasOther]}

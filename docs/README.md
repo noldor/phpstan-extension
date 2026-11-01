@@ -66,6 +66,7 @@ the selectors for the project's installed APIs as described in the rule docs.
 | Queue routing declaration, producer and collector rules | [Internal queue routing and native attributes](rules/laravel-queue-routing.md) |
 | `LaravelEnumRule` | [Application enums](rules/laravel-enums.md) |
 | `LighthouseClassContractRule` | [Lighthouse PHP class contracts](rules/lighthouse-class-contracts.md) |
+| Retained resolver collectors and dependency rule | [Retained resolver dependency graphs](rules/retained-resolver-dependencies.md) |
 | Dependency access extensions, actor and callable adapters | [DI and use-case boundaries](rules/laravel-dependency-access.md) |
 | Eloquent model rules and collectors | [Models, observers, dates, PHPDoc, morph aliases and pivots](rules/eloquent-models.md) |
 

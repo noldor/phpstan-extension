@@ -1,0 +1,9 @@
+includes:
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [Roots.php, Services.php, Providers.php, TestBindings.php]
+    tmpDir: ../../../build/retained-resolvers
+    noldors:
+        allowedValidationPaths!: [.]

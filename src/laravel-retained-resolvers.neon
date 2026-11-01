@@ -1,0 +1,37 @@
+services:
+    noldors.laravel.retainedResolverRoots:
+        class: Noldors\PHPStan\Configuration\ClassScope
+        arguments:
+            classes: %noldors.laravel.retainedResolvers.classes%
+            namespaces: %noldors.laravel.retainedResolvers.namespaces%
+            excludedClasses: %noldors.laravel.retainedResolvers.excludedClasses%
+            excludedNamespaces: %noldors.laravel.retainedResolvers.excludedNamespaces%
+        autowired: false
+    -
+        class: Noldors\PHPStan\Laravel\RetainedResolverPolicy
+        arguments:
+            roots: @noldors.laravel.retainedResolverRoots
+            bindingSourcePaths: %noldors.laravel.retainedResolvers.bindingSourcePaths%
+            unsafeClasses: %noldors.laravel.retainedResolvers.unsafeClasses%
+            safeClasses: %noldors.laravel.retainedResolvers.safeClasses%
+            implementations: %noldors.laravel.retainedResolvers.implementations%
+            reviewedFactories: %noldors.laravel.retainedResolvers.reviewedFactories%
+    - Noldors\PHPStan\Laravel\RetainedBindingFacts
+    - Noldors\PHPStan\Laravel\RetainedDependencyTypes
+    - Noldors\PHPStan\Laravel\RetainedBindingCycles
+    - Noldors\PHPStan\Laravel\RetainedBindingAliases
+    - Noldors\PHPStan\Laravel\RetainedConstructorEdges
+    - Noldors\PHPStan\Laravel\RetainedPropertyEdges
+    - Noldors\PHPStan\Laravel\RetainedDependencyGraph
+    -
+        class: Noldors\PHPStan\Collectors\RetainedResolverCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\RetainedBindingCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\RetainedProviderBindingCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Rules\RetainedResolverDependencyRule
+        tags: [phpstan.rules.rule]
