@@ -65,6 +65,33 @@ parameters:
                 namespaces: []
                 excludedClasses: []
                 excludedNamespaces: []
+            retainedResolvers:
+                classes: []
+                namespaces: []
+                excludedClasses: []
+                excludedNamespaces: []
+                bindingSourcePaths: []
+                safeClasses: []
+                implementations: []
+                reviewedFactories: []
+                unsafeClasses:
+                    - Symfony\Component\HttpFoundation\Request
+                    - Psr\Http\Message\ServerRequestInterface
+                    - GraphQL\Type\Definition\ResolveInfo
+                    - Nuwave\Lighthouse\Support\Contracts\GraphQLContext
+                    - Nuwave\Lighthouse\Execution\ResolveInfo
+                    - Nuwave\Lighthouse\Execution\Arguments\ArgumentSet
+                    - Illuminate\Log\Context\Repository
+                    - Illuminate\Contracts\Auth\Authenticatable
+                    - Illuminate\Contracts\Auth\Guard
+                    - Illuminate\Contracts\Container\Container
+                    - Psr\Container\ContainerInterface
+                    - Illuminate\Database\Eloquent\Model
+                    - Illuminate\Database\Eloquent\Collection
+                    - Illuminate\Database\Eloquent\Builder
+                    - Illuminate\Database\Query\Builder
+                    - Illuminate\Database\Eloquent\Relations\Relation
+                    - Illuminate\Http\Client\PendingRequest
             useCaseTransportTypes:
                 - Symfony\Component\HttpFoundation\Request
                 - GraphQL\Type\Definition\ResolveInfo
@@ -255,6 +282,12 @@ parametersSchema:
             lighthouseValidators: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             lighthouseResolvers: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             lighthouseSubscriptions: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
+            retainedResolvers: structure([
+                classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()),
+                bindingSourcePaths: listOf(string()), safeClasses: listOf(string()), unsafeClasses: listOf(string()),
+                implementations: listOf(structure([abstract: string(), concretes: listOf(string())])),
+                reviewedFactories: listOf(structure([abstract: string(), concretes: listOf(string())]))
+            ]),
             useCaseTransportTypes: listOf(string()),
             globalActorMethods: listOf(string()),
             dependencyInjection: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), excludedPaths: listOf(string()), helpers: listOf(string()), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())]),

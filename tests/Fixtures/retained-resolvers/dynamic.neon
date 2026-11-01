@@ -1,0 +1,9 @@
+includes:
+    - enabled.neon
+
+parameters:
+    paths: [DynamicBindings.php]
+    noldors:
+        laravel:
+            retainedResolvers:
+                bindingSourcePaths: [DynamicBindings.php]

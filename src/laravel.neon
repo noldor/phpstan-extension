@@ -6,6 +6,7 @@ includes:
     - laravel-queue-routing.neon
     - laravel-dependency-access.neon
     - laravel-validation-contracts.neon
+    - laravel-retained-resolvers.neon
 
 parameters:
     noldors:

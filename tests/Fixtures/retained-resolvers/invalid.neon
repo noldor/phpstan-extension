@@ -1,0 +1,8 @@
+includes:
+    - enabled.neon
+
+parameters:
+    noldors:
+        laravel:
+            retainedResolvers:
+                safeClasses: false
