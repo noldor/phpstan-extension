@@ -20,6 +20,7 @@ parameters:
                 excludedNamespaces: []
                 excludedPaths: []
                 helpers: []
+                allowedHelpers: []
                 allLaravelHelpers: false
                 serviceLocatorTypes: [Illuminate\Contracts\Container\Container, Illuminate\Container\Container, Psr\Container\ContainerInterface]
                 serviceLocatorMethods: [make, makeWith, get, offsetGet, getInstance, call, build, factory]
@@ -37,7 +38,7 @@ parametersSchema:
             globalActorMethods: listOf(string()),
             dependencyInjection: structure([
                 classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()),
-                excludedPaths: listOf(string()), helpers: listOf(string()), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())
+                excludedPaths: listOf(string()), helpers: listOf(string()), allowedHelpers: listOf(structure([function: string(), ?classes: listOf(string()), ?namespaces: listOf(string()), methods: listOf(string())])), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())
             ])
         ])
     ])

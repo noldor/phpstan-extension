@@ -110,6 +110,7 @@ parameters:
                 excludedNamespaces: []
                 excludedPaths: [tests, database/migrations]
                 helpers: []
+                allowedHelpers: []
                 allLaravelHelpers: false
                 serviceLocatorTypes:
                     - Illuminate\Contracts\Container\Container
@@ -291,7 +292,7 @@ parametersSchema:
             ]),
             useCaseTransportTypes: listOf(string()),
             globalActorMethods: listOf(string()),
-            dependencyInjection: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), excludedPaths: listOf(string()), helpers: listOf(string()), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())]),
+            dependencyInjection: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string()), excludedPaths: listOf(string()), helpers: listOf(string()), allowedHelpers: listOf(structure([function: string(), ?classes: listOf(string()), ?namespaces: listOf(string()), methods: listOf(string())])), allLaravelHelpers: bool(), serviceLocatorTypes: listOf(string()), serviceLocatorMethods: listOf(string())]),
             validationContracts: structure([relationships: listOf(structure([class: string(), fields: listOf(string())])), inputValidators: listOf(structure([class: string(), fields: listOf(string())]))]),
             useCases: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),
             events: structure([classes: listOf(string()), namespaces: listOf(string()), excludedClasses: listOf(string()), excludedNamespaces: listOf(string())]),

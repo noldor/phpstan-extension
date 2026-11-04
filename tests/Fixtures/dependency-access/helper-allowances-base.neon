@@ -1,0 +1,12 @@
+includes:
+    - ../../../src/laravel.neon
+parameters:
+    level: 0
+    paths: [HelperAllowances.php]
+    tmpDir: ../../../build/helper-allowances
+    noldors:
+        laravel:
+            dependencyInjection:
+                namespaces: [DependencyAccess\Helpers]
+                excludedPaths!: []
+                helpers: [DependencyAccess\Helpers\custom_service]
