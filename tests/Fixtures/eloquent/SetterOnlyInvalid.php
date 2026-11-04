@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /** @property int $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class WrongSetterOnlyType extends BaseModel
+class WrongSetterOnlyType extends SchemaDocumentedModel
 {
     /** @return Attribute<never, string> */
     public function databaseLabel(): Attribute { return Attribute::set(fn(string $value):string=>$value); }
@@ -14,7 +14,7 @@ class WrongSetterOnlyType extends BaseModel
 /** @property-read string $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class ThrowingGetter extends BaseModel
+class ThrowingGetter extends SchemaDocumentedModel
 {
     /** @return Attribute<never, never> */
     protected function databaseLabel(): Attribute { return Attribute::get(fn():never=>throw new \LogicException('Unreadable')); }

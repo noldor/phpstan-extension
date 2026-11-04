@@ -26,7 +26,7 @@ trait HasChildren
  */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class GoodProperties extends BaseModel
+class GoodProperties extends SchemaDocumentedModel
 {
     use HasChildren;
     /** @return Attribute<string, never> */
@@ -39,7 +39,7 @@ class GoodProperties extends BaseModel
 /** @property int $id */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class WritableKey extends BaseModel {}
+class WritableKey extends SchemaDocumentedModel {}
 
 function registerGoodProperties(): void
 {

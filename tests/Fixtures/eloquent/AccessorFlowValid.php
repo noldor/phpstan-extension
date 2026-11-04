@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /** @property string $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class AssignedAttribute extends BaseModel
+class AssignedAttribute extends SchemaDocumentedModel
 {
     /** @return Attribute<never, string> */
     protected function databaseLabel(): Attribute
@@ -18,7 +18,7 @@ class AssignedAttribute extends BaseModel
 /** @property int $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class LegacyReadModernWrite extends BaseModel
+class LegacyReadModernWrite extends SchemaDocumentedModel
 {
     public function getDatabaseLabelAttribute(): int { return 7; }
     /** @return Attribute<never, string> */
@@ -27,7 +27,7 @@ class LegacyReadModernWrite extends BaseModel
 /** @property string $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class IndirectAttribute extends BaseModel
+class IndirectAttribute extends SchemaDocumentedModel
 {
     /** @return Attribute<never, string> */
     protected function databaseLabel(): Attribute { return $this->buildAttribute(); }
@@ -42,7 +42,7 @@ function registerAccessorFlows(): void
 /** @property string $label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class ModernReadLegacyWrite extends BaseModel
+class ModernReadLegacyWrite extends SchemaDocumentedModel
 {
     public function setLabelAttribute(string $value): void { $this->attributes['database_label'] = $value; }
     /** @return Attribute<string, never> */
@@ -52,7 +52,7 @@ class ModernReadLegacyWrite extends BaseModel
 /** @property string $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class ConstantNullGetter extends BaseModel
+class ConstantNullGetter extends SchemaDocumentedModel
 {
     private const NO_GETTER = null;
     /** @return Attribute<mixed, string> */
@@ -62,7 +62,7 @@ class ConstantNullGetter extends BaseModel
 /** @property-read string $label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class AssignedComputedGetter extends BaseModel
+class AssignedComputedGetter extends SchemaDocumentedModel
 {
     /** @return Attribute<string, never> */
     protected function label(): Attribute { $attribute = Attribute::make(get: fn():string=>'label'); return $attribute; }

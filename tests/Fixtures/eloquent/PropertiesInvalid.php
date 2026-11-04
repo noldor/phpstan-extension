@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\{HasMany, Relation};
  */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class BadProperties extends BaseModel
+class BadProperties extends SchemaDocumentedModel
 {
     /** @return Attribute<string, string> */
     protected function label(): Attribute

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class SetterOnlyProperties extends BaseModel
+class SetterOnlyProperties extends SchemaDocumentedModel
 {
     /** @return Attribute<never, string> */
     public function databaseLabel(): Attribute { return Attribute::set(fn(string $value):string=>trim($value)); }

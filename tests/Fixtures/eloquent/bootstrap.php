@@ -7,6 +7,10 @@ $application->instance('config', new Illuminate\Config\Repository([
 ]));
 
 spl_autoload_register(static function (string $class): void {
+    if (str_starts_with($class, 'PropertyDocsFixture\\') || str_starts_with($class, 'PropertyDocsVendor\\')) {
+        foreach (['PropertyDocsVendor', 'PropertyDocsInvalid', 'PropertyDocsValid', 'DocumentedVendorExtension'] as $file) { require_once __DIR__ . '/' . $file . '.php'; }
+        return;
+    }
     if (! str_starts_with($class, 'EloquentFixture\\')) { return; }
     foreach (['CoreValid', 'CoreInvalid', 'RegistrationsValid', 'RegistrationsInvalid', 'PropertiesValid', 'PropertiesInvalid', 'PivotsValid', 'PivotsInvalid', 'NullabilityInvalid', 'DateOverridesInvalid', 'ReviewInvalid', 'ReviewValid', 'SecondReviewInvalid', 'PublicAccessorsValid', 'SetterOnlyValid', 'SetterOnlyInvalid', 'AccessorFlowValid', 'AccessorFlowInvalid', 'ConstructorSourceValid', 'ConstructorSourceInvalid'] as $file) {
         require_once __DIR__ . '/' . $file . '.php';
