@@ -1,0 +1,8 @@
+includes:
+    - helper-allowances-base.neon
+parameters:
+    noldors:
+        laravel:
+            dependencyInjection:
+                allowedHelpers:
+                    - {function: 123, classes: [DependencyAccess\Helpers\Selected], methods: [__invoke]}

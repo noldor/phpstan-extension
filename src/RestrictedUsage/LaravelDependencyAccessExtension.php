@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Facade;
 use PHPStan\Reflection\ClassReflection;
 use PHPStan\Rules\ClassNameUsageLocation;
 use PHPStan\Reflection\FunctionReflection;
+use Noldors\PHPStan\Laravel\HelperMethodScope;
 use PHPStan\Rules\RestrictedUsage\RestrictedUsage;
 use Noldors\PHPStan\Laravel\LaravelHelperFunctions;
 use Noldors\PHPStan\Laravel\DependencyInjectionScope;
@@ -24,6 +25,7 @@ final class LaravelDependencyAccessExtension implements RestrictedClassNameUsage
         private readonly DependencyInjectionScope $selection,
         private readonly array $helpers,
         private readonly bool $allLaravelHelpers,
+        private readonly HelperMethodScope $allowedHelpers,
     ) {}
 
     public function isRestrictedClassNameUsage(ClassReflection $classReflection, Scope $scope, ClassNameUsageLocation $location): RestrictedUsage|null
@@ -33,7 +35,11 @@ final class LaravelDependencyAccessExtension implements RestrictedClassNameUsage
 
     public function isRestrictedFunctionUsage(FunctionReflection $functionReflection, Scope $scope): RestrictedUsage|null
     {
-        return $this->selection->contains($scope) && LaravelHelperFunctions::matches($functionReflection, $this->allLaravelHelpers, $this->helpers) ? $this->restriction() : null;
+        if (! $this->selection->contains($scope) || ! LaravelHelperFunctions::matches($functionReflection, $this->allLaravelHelpers, $this->helpers)) {
+            return null;
+        }
+
+        return $this->allowedHelpers->contains($functionReflection, $scope) ? null : $this->restriction();
     }
 
     private function restriction(): RestrictedUsage

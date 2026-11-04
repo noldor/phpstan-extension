@@ -1,0 +1,19 @@
+includes:
+    - helper-allowances-base.neon
+parameters:
+    noldors:
+        laravel:
+            dependencyInjection:
+                allowedHelpers:
+                    -
+                        function: '\ReSoLvE'
+                        classes: [DependencyAccess\Helpers\Selected]
+                        methods: [__INVOKE]
+                    -
+                        function: resolve
+                        namespaces: [DependencyAccess\Helpers\Resolvers]
+                        methods: [__invoke]
+                    -
+                        function: DependencyAccess\Helpers\custom_service
+                        classes: [DependencyAccess\Helpers\OtherArea\Custom]
+                        methods: [run]

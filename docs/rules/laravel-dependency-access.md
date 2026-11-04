@@ -129,6 +129,76 @@ path and uses a known Laravel helper-name catalog for reflected signatures whose
 original source is unavailable. Recognition reads reflection metadata only; it
 does not load application code or scan/execute arbitrary filesystem files.
 
+### Allow a helper only in selected methods
+
+`dependencyInjection.allowedHelpers` defaults to `[]`. Each entry permits one
+exact function only in the listed methods of selected classes or namespaces.
+The surrounding `dependencyInjection` selection still determines where DI is
+checked. For example, Lighthouse can retain a resolver between Octane requests;
+resolve request-scoped services during `__invoke()` instead of retaining them in
+the resolver constructor:
+
+```neon
+parameters:
+    noldors:
+        laravel:
+            dependencyInjection:
+                namespaces: [Company\GraphQL\Resolvers]
+                allowedHelpers:
+                    -
+                        function: resolve
+                        classes: [Company\GraphQL\Resolvers\Login]
+                        methods: [__invoke]
+                    -
+                        function: resolve
+                        namespaces: [Company\GraphQL\Resolvers\Queries]
+                        methods: [__invoke]
+```
+
+```php
+final class Login
+{
+    public function __invoke(): void
+    {
+        $operation = resolve(LoginOperation::class); // Allowed by this entry.
+        $operation->handle();
+    }
+
+    public function other(): void
+    {
+        resolve(LoginOperation::class); // Still rejected, as in __construct().
+    }
+}
+```
+
+`function` and `methods` are required; `classes` and `namespaces` are optional
+lists, combined with OR when both are supplied. Class selectors include
+subclasses and interface implementations; namespace selectors respect namespace
+boundaries. An entry without class/namespace selectors or with an empty method
+list grants no allowance. Function and method names are case-insensitive; an
+optional leading `\` on the function name is accepted. Use fully qualified names
+for custom namespaced helpers. Names are exact, with no wildcard matching.
+PHPStan validates the entry structure and field types before analysis.
+
+The allowance covers direct calls, imported function aliases and first-class
+function callable creation such as `resolve(...)` in the selected method.
+Closures and arrow functions nested inside it do not inherit the allowance;
+neither do other methods or constructors unless explicitly listed. Selection
+uses the class and method where PHPStan analyses the call, not the eventual
+runtime caller. Inherited method bodies keep their declaring analysis context.
+
+Only the named helper's `architecture.dependencyInjection` diagnostic is
+suppressed. Other helpers (including those selected by `allLaravelHelpers`),
+facade references, service locator calls/offsets and other rules remain active.
+In particular, `retainedResolvers` continues checking retained dependencies; this
+setting does not make a resolved service safe to retain on the resolver.
+
+This uses PHPStan's [restricted function usage extension](https://phpstan.org/developing-extensions/restricted-usage-extensions#functions).
+As with the existing helper restriction, arbitrary variable function calls,
+`call_user_func()` indirection and execution of previously created callables are
+not traced. The allowance applies to the analysed named call or callable
+creation; it does not validate where a callable is later invoked.
+
 The locator defaults use `Illuminate\Contracts\Container\Container`,
 `Illuminate\Container\Container` and `Psr\Container\ContainerInterface`, with
 `[make, makeWith, get, offsetGet, getInstance, call, build, factory]` methods.

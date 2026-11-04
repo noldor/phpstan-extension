@@ -1,0 +1,15 @@
+includes:
+    - ../../../src/laravel.neon
+parameters:
+    level: 0
+    paths: [HelperRetained.php]
+    tmpDir: ../../../build/helper-allowances-retained
+    noldors:
+        laravel:
+            dependencyInjection:
+                namespaces: [DependencyAccess\Retained]
+                allowedHelpers:
+                    - {function: resolve, namespaces: [DependencyAccess\Retained], methods: [__invoke]}
+            retainedResolvers:
+                bindingSourcePaths: [HelperRetained.php]
+                namespaces: [DependencyAccess\Retained]

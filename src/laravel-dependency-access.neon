@@ -12,6 +12,10 @@ services:
         arguments:
             classes: @noldors.laravel.dependencyInjectionClasses
             excludedPaths: %noldors.laravel.dependencyInjection.excludedPaths%
+    noldors.laravel.helperMethodScope:
+        class: Noldors\PHPStan\Laravel\HelperMethodScope
+        arguments:
+            allowedHelpers: %noldors.laravel.dependencyInjection.allowedHelpers%
     -
         class: Noldors\PHPStan\RestrictedUsage\LaravelUseCaseTransportExtension
         arguments:
