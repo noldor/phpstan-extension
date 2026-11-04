@@ -164,6 +164,7 @@ parameters:
                 namespaces: []
                 excludedClasses: []
                 excludedNamespaces: []
+            # Deprecated compatibility option; event names do not select commit timing.
             completedEventSuffixes: [Created, Updated, Deleted, Restored, Saved, ForceDeleted, Trashed]
             validationExceptions: [Illuminate\Validation\ValidationException]
             errorBagClasses: [Illuminate\Support\MessageBag, Illuminate\Support\ViewErrorBag]

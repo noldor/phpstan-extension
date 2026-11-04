@@ -15,7 +15,10 @@ namespace ContractFixtures\Events {
     abstract class MutableBase {} // @expect laravel.eventDeclaration
     abstract readonly class ImmutableBase {}
     final readonly class OrdinaryEvent extends ImmutableBase {}
-    final readonly class OrderCreated {} // @expect laravel.eventAfterCommit
+    final readonly class OrderCreated {}
+    final readonly class AuditCreated implements \ContractFixtures\Neutral\AuditableEvent {}
+    final readonly class OrderPublished {}
+    class MutableCreated {} // @expect laravel.eventDeclaration
     final readonly class OrderDeleted implements \Illuminate\Contracts\Events\ShouldDispatchAfterCommit {}
     /** @final */
     readonly class AnnotatedFinal {} // @expect laravel.eventDeclaration
@@ -104,6 +107,7 @@ namespace ContractFixtures\Notifications {
 }
 
 namespace ContractFixtures\Neutral {
+    interface AuditableEvent {}
     class OrdinaryService {}
     abstract class DeferredBase implements \Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit {}
     abstract class CompositeHandler { use \Illuminate\Foundation\Queue\Queueable; }

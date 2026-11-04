@@ -20,15 +20,11 @@ use Noldors\PHPStan\Configuration\ClassScope;
  */
 final class LaravelEventContractRule implements Rule
 {
-    /**
-     * @param list<string> $completedEventSuffixes
-     */
     public function __construct(
         private readonly ClassScope $events,
         private readonly ClassScope $listeners,
         private readonly QueuePolicy $policy,
         private readonly PhpVersion $phpVersion,
-        private readonly array $completedEventSuffixes,
     ) {}
 
     public function getNodeType(): string
@@ -78,10 +74,6 @@ final class LaravelEventContractRule implements Rule
             $errors[] = RuleErrorBuilder::message('Declare concrete events final readonly and abstract event bases abstract readonly.')->identifier('laravel.eventDeclaration')->build();
         }
 
-        if (! $class->isAbstract() && $this->isCompletedEvent($declaration) && ! $class->is(\Illuminate\Contracts\Events\ShouldDispatchAfterCommit::class)) {
-            $errors[] = RuleErrorBuilder::message('Completed lifecycle events must implement ShouldDispatchAfterCommit.')->identifier('laravel.eventAfterCommit')->build();
-        }
-
         return $errors;
     }
 
@@ -104,18 +96,5 @@ final class LaravelEventContractRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function isCompletedEvent(Node\Stmt\Class_ $class): bool
-    {
-        $name = \mb_strtolower($class->name?->toString() ?? '');
-
-        foreach ($this->completedEventSuffixes as $suffix) {
-            if ('' !== $suffix && \str_ends_with($name, \mb_strtolower($suffix))) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

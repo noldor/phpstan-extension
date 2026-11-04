@@ -1,0 +1,7 @@
+includes:
+    - enabled.neon
+
+parameters:
+    noldors:
+        laravel:
+            completedEventSuffixes!: [Created, Published]

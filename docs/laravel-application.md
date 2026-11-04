@@ -59,7 +59,7 @@ Observer scope takes precedence when it overlaps listener or job scope. An obser
 
 ## Compatibility and guarantees
 
-The package requires PHP >=8.5 and PHPStan ^2.3. Contract checks require the relevant interfaces in the consumer's installed Laravel version: `ShouldQueueAfterCommit`, `ShouldDispatchAfterCommit` and `ShouldHandleEventsAfterCommit`. Native readonly declarations are checked when PHPStan's configured PHP target supports readonly classes. The consumer fixtures exercise real Laravel 13 and Larastan 3 metadata; development dependencies are not installed in consumers.
+The package requires PHP >=8.5 and PHPStan ^2.3. Listener and queue contract checks require the relevant interfaces in the consumer's installed Laravel version: `ShouldQueueAfterCommit` and `ShouldHandleEventsAfterCommit`. Events do not have to implement `ShouldDispatchAfterCommit`; see [event contracts](rules/laravel-event-contracts.md). Native readonly declarations are checked when PHPStan's configured PHP target supports readonly classes. The consumer fixtures exercise real Laravel 13 and Larastan 3 metadata; development dependencies are not installed in consumers.
 
 Forwarded Eloquent methods, relation model types and facade implementations require compatible Larastan or equivalent reflection metadata. Unknown receiver/model/payload types are not reported as proven violations. Keep strict native typing checks enabled to address missing types separately.
 
