@@ -11,5 +11,5 @@ trait SourceAccessor
 /** @property int $database_label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class TraitAccessorSource extends BaseModel { use SourceAccessor; }
+class TraitAccessorSource extends SchemaDocumentedModel { use SourceAccessor; }
 function registerTraitAccessorSource(): void { Relation::morphMap(['trait_accessor_source'=>TraitAccessorSource::class]); }

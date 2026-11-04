@@ -58,11 +58,12 @@ paths**. `scanFiles` alone does not run collectors over those files.
 | `laravel.modelDateFormat` | Each concrete model explicitly declares the required `DateFormat`; legacy overrides, storage-hook overrides and direct constructor changes cannot invalidate it. |
 | `laravel.modelJsonDateFormat` | The effective JSON serializer and known casts preserve the required format. Default Carbon JSON with `Z` is insufficient. |
 | `laravel.computedAttribute` | Non-column read-only accessors use `Attribute::make(get: ...)` and `Attribute<T, never>`. Writable and database-backed accessors retain their semantics. |
+| `laravel.modelPropertyMissing` | Every independently known database column on a selected concrete model has a readable `@property` or `@property-read`, declared locally or inherited. A summary-only PHPDoc and `@property-write` do not satisfy coverage. |
 | `laravel.modelPropertyReadOnly` | Documented relationships, computed read-only properties and identifiers use `@property-read`, with explicit writable exceptions. |
 | `laravel.modelPropertyOrder` | PHPDoc groups database fields, computed/query attributes, then relationships, including trait relationships. Cast/accessor-backed columns stay in the database group. |
 | `laravel.modelPropertyName` | PHPDoc names resolve to independent columns, accessors, relations or configured query-derived properties. |
 | `laravel.modelPropertyType` | Readable types agree with schema/cast/accessor/relation metadata, including reliable nullability and generic/shape contracts. Narrow array shapes may refine a broad `array` cast. |
-| `laravel.modelSchema` | Independent schema metadata is missing for a documented model. Configure Larastan's migrations/schema; dynamic table/connection models require manual verification. |
+| `laravel.modelSchema` | Independent schema metadata is missing for a selected concrete model, even without PHPDoc. Configure Larastan's migrations/schema; dynamic table/connection models require manual verification. |
 | `laravel.morphMap` | Every concrete selected model has a declared entry in `Relation::morphMap()` or `enforceMorphMap()`. Namespace selection automatically includes future models. |
 | `laravel.morphMapUnverifiable` | A dynamic morph map cannot establish static registration. |
 | `laravel.morphAlias` | Known alias literals in configured discriminator contexts use `Relation::getMorphAlias(Model::class)`. Registration and migration literals stay stable. |
@@ -123,9 +124,29 @@ and time zones use the separate [PostgreSQL instant rule](laravel-postgres-insta
 
 ## PHPDoc and dynamic configuration
 
-The bridge obtains column names before reading annotations, so an incorrect
-`@property` cannot hide the schema column. Accessor getter types take precedence
-over cast/schema types. Statically recognized setter-only mutators retain the
+The bridge requires readable PHPDoc for every column returned by Larastan's
+independent migration/schema metadata on each selected concrete model. This is
+enabled by the existing property bridge and model scope; no additional option
+is needed. A model with no PHPDoc, a summary without property tags or a partial
+column list reports `laravel.modelPropertyMissing` for each uncovered column.
+`@property-write` alone does not describe the readable value. No annotations
+are generated and no property names are inferred from casts, fillable settings
+or Eloquent's fallback primary key.
+
+PHPStan's annotation reflection resolves local, trait and inherited property
+tags, including generic parent types. Correct inherited tags satisfy coverage
+without duplication. Inherited column types and readonly contracts are checked
+against the concrete child's schema, casts, accessors and primary key; changed
+casts may require a local refinement. Vendor bases can supply documentation to
+selected application subclasses. The vendor classes themselves are outside the
+check unless explicitly selected and analyzed. Abstract and excluded models do
+not require complete PHPDoc; their concrete selected descendants do.
+
+Existing annotation name/type/readonly checks remain active. Ordering applies
+to each analyzed model's own PHPDoc block, not a synthetic concatenation of
+ancestor blocks. The bridge obtains column names before reading annotations,
+so an incorrect `@property` cannot hide the schema column. Accessor getter
+types take precedence over cast/schema types. Statically recognized setter-only mutators retain the
 database/cast readable type. Legacy getters and setters retain Laravel's precedence.
 Indirect factories or callbacks whose presence is unknown leave readable-type
 and readonly consistency to application review. Read and write contracts are distinct: a getter over a
@@ -152,6 +173,11 @@ delegation, preserve dynamic declarations. Writable properties still need
 check validates the readable side. Table/connection
 exceptions and detected constructor changes make schema-based checks unknown;
 the bridge does not guess from an unconstructed model's fallback table.
+These models are skipped by the PHPDoc rule, including column completeness.
+When no independent schema columns are available for a static model, the rule
+reports only `laravel.modelSchema`, even if PHPDoc is absent; it does not invent
+missing fields. Configure Larastan's migrations/schema or use the existing
+explicit dynamic exception for genuinely dynamic storage.
 Other constructor helpers, runtime configuration and package initialization need
 explicit exceptions and manual verification. Exceptions inherit to subclasses.
 
@@ -164,8 +190,14 @@ not infer or replace schema types. Dynamic column declarations, generic
 comparisons uncertain. Accessor and relationship nullability remains checked.
 Refined shapes are checked against available getter/cast types; a broad JSON
 cast cannot establish the keys or application invariants of a shape. Query-only
-property types require an application contract. Missing PHPDoc entries are not
-generated or required by this check.
+property types require an application contract. Completeness covers only
+independently known database columns. It does not require annotations for
+relationships, computed accessors or query-derived properties, whose complete
+runtime set cannot be established from the schema. Existing annotations for
+these properties retain their name/type/readonly/order checks. Registering a
+query-derived property permits its name; it does not establish its type.
+Unknown or broad metadata does not justify inventing a more precise type or
+array shape. Application tests and review remain necessary for those contracts.
 
 ## Morph aliases
 

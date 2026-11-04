@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsToMany,Relation};
 /** @property-read string $label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class PublicLegacyAccessor extends BaseModel
+class PublicLegacyAccessor extends SchemaDocumentedModel
 {
     public function getLabelAttribute(): string { return 'x'; }
 }
@@ -34,7 +34,7 @@ class DelegatingStorageMutation extends ParentStorageMutation
 }
 
 #[Table(key: 'legacy_key')]
-abstract class OldKeyBase extends BaseModel {}
+abstract class OldKeyBase extends SchemaDocumentedModel {}
 /** @property int $id */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
@@ -43,7 +43,7 @@ class ShadowedKey extends OldKeyBase {}
 /** @property callable(int $argument): string $callback */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class CallbackProperty extends BaseModel
+class CallbackProperty extends SchemaDocumentedModel
 {
     /** @return Attribute<callable(int): string, never> */
     protected function callback(): Attribute { return Attribute::make(get: fn (): \Closure => static fn (int $argument): string => (string) $argument); }
@@ -53,7 +53,7 @@ class CallbackProperty extends BaseModel
 trait ChangesKey {}
 /** @property int $count */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
-class TraitKey extends BaseModel { use ChangesKey; }
+class TraitKey extends SchemaDocumentedModel { use ChangesKey; }
 
 function registerReviewFailures(): void
 {

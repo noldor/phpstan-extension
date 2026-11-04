@@ -5,5 +5,5 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /** @property string $name */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class WrongNullability extends BaseModel {}
+class WrongNullability extends SchemaDocumentedModel {}
 function registerWrongNullability(): void { Relation::morphMap(['nullable' => WrongNullability::class]); }

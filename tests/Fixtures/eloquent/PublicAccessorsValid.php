@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class PublicAccessors extends BaseModel
+class PublicAccessors extends SchemaDocumentedModel
 {
     /** @return Attribute<string, string> */
     public function databaseLabel(): Attribute

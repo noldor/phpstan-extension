@@ -1,0 +1,13 @@
+includes:
+    - bridge.neon
+parameters:
+    level: max
+    paths: [PropertyDocsValid.php, DocumentedVendorExtension.php, PropertyDocsVendor.php]
+    scanFiles: [CoreValid.php]
+    noldors:
+        eloquent:
+            modelNamespaces!: [PropertyDocsFixture]
+            excludeModels!: [PropertyDocsFixture\Excluded]
+            dynamicConfiguration:
+                - {class: PropertyDocsFixture\DynamicConnection, properties: [connection]}
+                - {class: PropertyDocsFixture\ConfiguredDynamicTable, properties: [table]}

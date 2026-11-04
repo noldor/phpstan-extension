@@ -45,6 +45,12 @@ final class EloquentConfigurationTest extends TestCase
             'laravel.observerFinal',
         ]];
 
+        yield 'missing and inherited column documentation' => ['property-docs-invalid.neon', [
+            'laravel.modelPropertyMissing', 'laravel.modelPropertyMissing', 'laravel.modelPropertyMissing',
+            'laravel.modelPropertyMissing', 'laravel.modelPropertyMissing', 'laravel.modelPropertyMissing',
+            'laravel.modelPropertyMissing', 'laravel.modelPropertyReadOnly', 'laravel.modelPropertyType', 'laravel.modelSchema',
+        ]];
+
         yield 'schema and property contracts' => ['properties-invalid.neon', [
             'laravel.computedAttribute',
             'laravel.computedAttribute',
@@ -74,6 +80,7 @@ final class EloquentConfigurationTest extends TestCase
         yield 'review regression cases' => ['review-invalid.neon', [
             'laravel.computedAttribute', 'laravel.modelDateFormat',
             'laravel.modelPropertyReadOnly', 'laravel.modelPropertyReadOnly', 'laravel.modelPropertyReadOnly',
+            'laravel.modelSchema', 'laravel.modelSchema',
             'laravel.morphAlias', 'laravel.pivotChaperone',
         ]];
 
@@ -110,6 +117,8 @@ final class EloquentConfigurationTest extends TestCase
         yield 'schema, accessors, query properties, traits and writable key' => ['properties-valid.neon'];
 
         yield 'pivot variables, morph directions and custom accessors' => ['pivots-valid.neon'];
+
+        yield 'complete, inherited, trait, vendor and dynamic column boundaries' => ['property-docs-valid.neon'];
 
         yield 'disabled scope' => ['disabled.neon'];
 

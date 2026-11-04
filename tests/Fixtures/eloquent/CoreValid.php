@@ -53,3 +53,13 @@ function registerCoreModels(): void
         'dynamic' => DynamicModel::class,
     ]);
 }
+
+/**
+ * @property-read int $id
+ * @property string|null $name
+ * @property int $count
+ * @property string $options
+ * @property string $database_label
+ * @property string $happened_at
+ */
+abstract class SchemaDocumentedModel extends BaseModel {}

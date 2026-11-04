@@ -5,11 +5,11 @@ declare(strict_types = 1);
 namespace Noldors\PHPStan\Rules;
 
 use PhpParser\Node;
+use PHPStan\Type\Type;
 use PHPStan\Rules\Rule;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Type\VerbosityLevel;
-use PHPStan\PhpDoc\Tag\PropertyTag;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Reflection\ClassReflection;
@@ -42,7 +42,7 @@ final class EloquentPropertyDocRule implements Rule
         $class = $node->getClassReflection();
         $comment = $node->getOriginalNode()->getDocComment();
 
-        if (! $this->models->contains($class) || null === $comment || $class->isAbstract()) {
+        if (! $this->models->contains($class) || $class->isAbstract()) {
             return [];
         }
         $names = $this->metadata->databaseNames($class);
@@ -54,12 +54,13 @@ final class EloquentPropertyDocRule implements Rule
         if ([] === $names) {
             return [RuleErrorBuilder::message('Cannot verify model PHPDoc without independent schema metadata; configure Larastan migrations or declare dynamic table/connection configuration.')->identifier('laravel.modelSchema')->build()];
         }
-        $errors = [];
+        $entries = null === $comment ? [] : $this->documents->entries($comment->getText(), $comment->getStartLine());
+        $errors = $this->columnErrors($class, $names, \array_column($entries, 'name'), $node->getStartLine());
         $group = 0;
 
-        foreach ($this->documents->entries($comment->getText(), $comment->getStartLine()) as $entry) {
+        foreach ($entries as $entry) {
             $name = $entry['name'];
-            $tag = $class->getPropertyTags()[$name] ?? null;
+            $tag = $this->documents->property($class, $name);
 
             if (null === $tag) {
                 continue;
@@ -82,9 +83,43 @@ final class EloquentPropertyDocRule implements Rule
     }
 
     /**
+     * @param list<string> $names
+     * @param list<string> $localNames
+     *
      * @return list<IdentifierRuleError>
      */
-    private function propertyErrors(ClassReflection $class, string $name, PropertyTag $tag, bool $database, bool $known, int $line): array
+    private function columnErrors(ClassReflection $class, array $names, array $localNames, int $line): array
+    {
+        $errors = [];
+
+        foreach ($names as $name) {
+            $tag = $this->documents->property($class, $name);
+
+            if (null === $tag || null === $tag['readable']) {
+                $errors[] = $this->missingColumn($name, $line);
+
+                continue;
+            }
+
+            if (! \in_array($name, $localNames, true)) {
+                $errors = [...$errors, ...$this->propertyErrors($class, $name, $tag, true, true, $line)];
+            }
+        }
+
+        return $errors;
+    }
+
+    private function missingColumn(string $name, int $line): IdentifierRuleError
+    {
+        return $this->error(\sprintf('Document database column $%s with a readable @property or @property-read annotation, locally or through inheritance.', $name), 'laravel.modelPropertyMissing', $line);
+    }
+
+    /**
+     * @param array{readable: Type|null, writable: bool} $tag
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function propertyErrors(ClassReflection $class, string $name, array $tag, bool $database, bool $known, int $line): array
     {
         $expected = $this->metadata->readableType($class, $name, $database);
 
@@ -94,10 +129,10 @@ final class EloquentPropertyDocRule implements Rule
         $errors = [];
         $readonly = $this->metadata->keyName($class) === $name || (! $database && ($this->metadata->isRelation($class, $name) || $this->metadata->isReadonlyAccessor($class, $name)));
 
-        if ($readonly && $tag->isWritable() && ! $this->writableProperties->contains($class, $name)) {
+        if ($readonly && $tag['writable'] && ! $this->writableProperties->contains($class, $name)) {
             $errors[] = $this->error(\sprintf('Document read-only model property $%s with @property-read.', $name), 'laravel.modelPropertyReadOnly', $line);
         }
-        $documented = $tag->getReadableType();
+        $documented = $tag['readable'];
         $reliableNullability = ! $database || $this->metadata->isReadableAccessor($class, $name) || $this->nullability->isReliable($name);
 
         if (null !== $expected && null !== $documented && ! $this->types->matches($expected, $documented, $reliableNullability)) {

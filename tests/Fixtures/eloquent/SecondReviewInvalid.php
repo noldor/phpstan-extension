@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 /** @property-read string $label */
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class PublicModernInvalid extends BaseModel
+class PublicModernInvalid extends SchemaDocumentedModel
 {
     /** @return Attribute<string, never> */
     public function label(): Attribute { return Attribute::get(fn():string=>'x'); }
 }
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class OverwrittenListModel extends BaseModel {}
+class OverwrittenListModel extends SchemaDocumentedModel {}
 #[DateFormat('Y-m-d\\TH:i:s.uP')]
 #[Table('property_models')]
-class LastListModel extends BaseModel {}
+class LastListModel extends SchemaDocumentedModel {}
 function secondReviewRegistrations(): void
 {
     Relation::morphMap(['public_modern'=>PublicModernInvalid::class]);
