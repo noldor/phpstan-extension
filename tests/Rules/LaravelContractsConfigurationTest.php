@@ -40,6 +40,11 @@ final class LaravelContractsConfigurationTest extends TestCase
         $this->assertSame($this->analyse('enabled.neon'), $this->analyse('legacy.neon'));
     }
 
+    public function testLegacyCompletedEventSuffixesDoNotChangeTheContracts(): void
+    {
+        $this->assertSame($this->analyse('enabled.neon'), $this->analyse('legacy-event-suffixes.neon'));
+    }
+
     public function testInvalidRoleConfigurationFailsBeforeAnalysis(): void
     {
         $result = $this->runAnalysis('invalid.neon');
