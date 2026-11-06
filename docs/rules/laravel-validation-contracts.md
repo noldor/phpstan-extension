@@ -119,20 +119,23 @@ The supported native-object lookup is verified against Laravel 13.38.0.
 otherwise a Symfony `File` or `UploadedFile` selects `file`. The class-key
 forms work in Laravel but violate the public message contract and are diagnosed.
 
-For `Can`, `Enum` and `AnyOf`, the check accepts the short alias when
-numeric/array rules, or `bail` with an earlier string rule, prove that the
-short lookup is reachable. An external input/coercion contract may also make
-the alias correct at runtime, but is outside this check's supported proof.
-Do not add redundant application guards just to satisfy a conservative analysis
-of `mixed`. A native scalar field fallback or a field/rule wildcard provides
-explicit class-free coverage without introducing a new runtime restriction:
+For `Can`, `Enum` and `AnyOf`, the check accepts normal short aliases without
+inventing a file requirement from an unrestricted `mixed` input. File coverage
+is required when recognized `file`, `image`, MIME, extension or dimension rules
+declare a file context; native `File` and `ImageFile` builders count as well.
+Numeric/array rules and an earlier bailed string rule still exclude that lookup
+branch. This does not infer transport types: file inputs without recognized
+file rules, dynamic rules and unparsed builder alternatives remain manual
+review boundaries. Do not add redundant application guards just for the check.
+
+Ordinary enum fields and collection elements use their native short keys:
 
 ```php
 public function rules(): array
 {
     return [
-        'status' => ['required', 'string', Rule::enum(Status::class)],
-        'statuses.*' => ['required', 'string', Rule::enum(Status::class)],
+        'status' => ['required', Rule::enum(Status::class)],
+        'statuses.*' => ['required', Rule::enum(Status::class)],
     ];
 }
 
@@ -140,16 +143,16 @@ public function messages(): array
 {
     return [
         'status.required' => 'Choose a status.',
-        'status.string' => 'The status must be text.',
-        'status' => 'Unknown status.',
+        'status.enum' => 'Unknown status.',
         'statuses.*.required' => 'Choose a status.',
-        'statuses.*.string' => 'The status must be text.',
-        'statuses.*.*' => 'Unknown status.',
+        'statuses.*.enum' => 'Unknown status.',
     ];
 }
 ```
 
-The scalar `status` fallback precedes the appended `status.enum` alias;
+For a real file branch, a scalar field fallback (`'status' => 'Unknown status.'`)
+or a field/rule wildcard (`'status.*' => 'Unknown status.'`) supplies class-free
+public text. The scalar `status` fallback precedes the appended `status.enum` alias;
 explicit built-in `status.required` and `status.string` messages still win.
 An earlier selected rule entry also shadows the field fallback when that entry
 is an incomplete size map: `name.max => ['string' => '...']` does not reach a
