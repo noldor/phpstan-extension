@@ -30,6 +30,16 @@ use Noldors\PHPStan\Rules\LaravelValidationContractRule;
  */
 final class LaravelValidationContractRuleTest extends RuleTestCase
 {
+    public function testShortNativeAliasesRequireFileCoverageOnlyForDeclaredFileFields(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NativeAliasContexts.php']);
+        $this->assertSame(\array_fill(0, 4, 'validation.messageCoverage'), \array_map(static fn ($error): string|null => $error->getIdentifier(), $errors));
+
+        foreach (['upload.enum', 'image.enum', 'builder.enum', 'mime.enum'] as $index => $key) {
+            $this->assertStringContainsString($key, $errors[$index]->getMessage());
+        }
+    }
+
     public function testSelectedSizeMapsAndFalseyNativeOverridesCannotFallThroughToOtherMessages(): void
     {
         $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/ShadowedMessages.php']);
@@ -105,16 +115,16 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
             'accepted.accepted', 'activeUrl.active_url', 'base64.base64', 'boolean.boolean', 'declined.declined',
             'filled.filled', 'hexColor.hex_color', 'json.json', 'list.list', 'macAddress.mac_address',
             'missing.missing', 'present.present', 'prohibited.prohibited', 'required.required', 'ulid.ulid',
-            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.can covering every reachable input type; a field fallback or can.* wildcard also covers file inputs', 'confirmed.confirmed', 'contains.contains',
+            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.can; for file fields, use a field fallback or can.* wildcard', 'confirmed.confirmed', 'contains.contains',
             'currentPassword.current_password', 'declinedIf.declined_if', 'distinct.distinct', 'doesntContain.doesnt_contain',
-            'enum.enum covering every reachable input type; a field fallback or enum.* wildcard also covers file inputs', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
+            'enum.enum; for file fields, use a field fallback or enum.* wildcard', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
             'missingIf.missing_if', 'missingUnless.missing_unless', 'missingWith.missing_with', 'missingWithAll.missing_with_all',
             'notIn.not_in', 'notRegex.not_regex', 'presentIf.present_if', 'presentUnless.present_unless',
             'presentWith.present_with', 'presentWithAll.present_with_all', 'prohibitedIfAccepted.prohibited_if_accepted',
             'prohibitedIfDeclined.prohibited_if_declined', 'prohibits.prohibits', 'regex.regex', 'requiredArrayKeys.required_array_keys',
             'requiredIfAccepted.required_if_accepted', 'requiredIfDeclined.required_if_declined', 'requiredWith.required_with',
             'requiredWithAll.required_with_all', 'requiredWithout.required_without', 'requiredWithoutAll.required_without_all',
-            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.any_of covering every reachable input type; a field fallback or anyOf.* wildcard also covers file inputs',
+            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.any_of; for file fields, use a field fallback or anyOf.* wildcard',
         ]);
     }
 
@@ -140,11 +150,10 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
         $this->assertMissingPairs('ComparisonSizeBranches.php', ['gt.gt', 'gte.gte', 'lt.lt', 'lte.lte']);
     }
 
-    public function testNativeClassOverridesAreRejectedAndUnsafeAliasesNeedClassFreeCoverage(): void
+    public function testNativeClassOverridesAreRejectedAndPlainAliasesAreAccepted(): void
     {
         $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NativeObjectMessages.php']);
         $this->assertSame([
-            'Provide an explicit public validation message for unsafe.enum covering every reachable input type; a field fallback or unsafe.* wildcard also covers file inputs.',
             ...\array_map(static fn (string $key): string => 'Do not use PHP class names in validation message keys or text (entry: ' . $key . ').', [
                 'permission.Illuminate\\Validation\\Rules\\Can', 'status.Illuminate\\Validation\\Rules\\Enum',
                 'choice.Illuminate\\Validation\\Rules\\AnyOf', 'file.Illuminate\\Validation\\Rules\\File',

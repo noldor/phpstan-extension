@@ -112,7 +112,7 @@ final class MessageCoverage
         $keys = [$field . '.' . $class, $class, $field];
         $alias = $this->names->nativeAlias($class);
 
-        if (null !== $alias && ! \in_array('file', $this->branches->forRule($set, $class), true)) {
+        if (null !== $alias && (! $this->branches->hasFileRules($set) || ! \in_array('file', $this->branches->forRule($set, $class), true))) {
             $keys[] = $field . '.' . $alias;
         }
         $type = $this->localMessage($field, $class, $keys, $messages);

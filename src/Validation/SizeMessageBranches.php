@@ -17,6 +17,12 @@ final class SizeMessageBranches
         return \in_array($rule, self::RULES, true);
     }
 
+    public function hasFileRules(RuleSet $set): bool
+    {
+        return [] !== \array_intersect($set->rules, [...self::FILE_RULES, 'mimes', 'mimetypes', 'extensions', 'dimensions'])
+            || \array_any($set->nested, $this->hasFileRules(...));
+    }
+
     /**
      * @return list<string>
      */

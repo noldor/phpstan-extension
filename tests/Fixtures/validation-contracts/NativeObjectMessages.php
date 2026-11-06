@@ -25,7 +25,7 @@ final class NativeObjectMessages
             'mail' => [Rule::email()->rules(['min:3'])], 'password' => [Password::min(8)->letters()],
             'text' => ['bail', 'string', Rule::enum(NativeMessageEnum::class)],
             'number' => ['numeric', Rule::enum(NativeMessageEnum::class)],
-            'unsafe' => [Rule::enum(NativeMessageEnum::class)],
+            'plain' => [Rule::enum(NativeMessageEnum::class)],
         ];
     }
     public function messages(): array
@@ -35,7 +35,7 @@ final class NativeObjectMessages
             'file.' . File::class => 'Invalid file.', 'image.' . ImageFile::class => 'Invalid image.',
             'mail.' . Email::class => 'Invalid email.', 'password.' . Password::class => 'Invalid password.',
             'text.string' => 'String.', 'text.enum' => 'Unknown.', 'number.numeric' => 'Number.', 'number.enum' => 'Unknown.',
-            'unsafe.enum' => 'Unknown.',
+            'plain.enum' => 'Unknown.',
         ];
     }
 }

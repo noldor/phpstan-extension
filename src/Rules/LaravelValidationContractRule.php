@@ -81,7 +81,7 @@ final class LaravelValidationContractRule implements Rule
         }
         $field = \mb_substr($key, 0, $separator);
 
-        return 'Provide an explicit public validation message for ' . $field . '.' . $alias . ' covering every reachable input type; a field fallback or ' . $field . '.* wildcard also covers file inputs.';
+        return 'Provide an explicit public validation message for ' . $field . '.' . $alias . '; for file fields, use a field fallback or ' . $field . '.* wildcard.';
     }
 
     /**

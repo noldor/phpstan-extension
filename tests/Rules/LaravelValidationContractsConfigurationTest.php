@@ -42,7 +42,7 @@ final class LaravelValidationContractsConfigurationTest extends TestCase
             'validation.fieldOrder' => 4,
             'validation.lighthouseMessageKey' => 1,
             'validation.messageClassName' => 7,
-            'validation.messageCoverage' => 5,
+            'validation.messageCoverage' => 9,
             'validation.messageOrder' => 2,
             'validation.methodOrder' => 1,
             'validation.relativeInputPath' => 3,
