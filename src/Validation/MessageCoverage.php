@@ -7,6 +7,7 @@ namespace Noldors\PHPStan\Validation;
 use PHPStan\Type\Type;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ClassReflection;
+use PHPStan\Type\Constant\ConstantStringType;
 
 final class MessageCoverage
 {
@@ -45,14 +46,18 @@ final class MessageCoverage
      */
     private function missingInContext(string $field, RuleSet $set, array $messages, RuleSet|null $parent = null): array
     {
-        if (null !== $set->override && $this->nativeMessage($field, $set->override, $parent ?? $set, $messages)) {
-            return [];
+        if (null !== $set->override) {
+            $override = $this->nativeMessage($field, $set->override, $parent ?? $set, $messages);
+
+            if (null !== $override) {
+                return $override ? [] : [$field . '.' . $set->override];
+            }
         }
         $missing = [];
         $nestedClasses = \array_map(static fn (RuleSet $nested): string|null => $nested->override, $set->nested);
 
         foreach ($set->rules as $rule) {
-            if (! \in_array($rule, $nestedClasses, true) && $this->names->fails($rule) && ! $this->hasMessage($field . '.' . $rule, $rule, $set, $messages)) {
+            if (! \in_array($rule, $nestedClasses, true) && $this->names->fails($rule) && ! $this->hasMessage($field, $rule, $set, $messages)) {
                 $missing[] = $field . '.' . $rule;
             }
         }
@@ -67,14 +72,19 @@ final class MessageCoverage
     /**
      * @param array<string, Type> $messages
      */
-    private function hasMessage(string $key, string $rule, RuleSet $set, array $messages): bool
+    private function hasMessage(string $field, string $rule, RuleSet $set, array $messages): bool
     {
-        if ($this->covered($key, $messages)) {
-            return true;
+        if (null !== $this->names->nativeAlias($rule)) {
+            return true === $this->nativeMessage($field, $rule, $set, $messages);
+        }
+        $type = $this->localMessage($field, $rule, [$field . '.' . $rule, $rule, $field], $messages);
+
+        if (null === $type) {
+            return false;
         }
 
-        if (null !== $this->names->nativeAlias($rule)) {
-            return $this->nativeMessage(\mb_substr($key, 0, -\mb_strlen('.' . $rule)), $rule, $set, $messages);
+        if (! $type->isArray()->yes()) {
+            return $this->present($type);
         }
 
         if (! $this->branches->isSizeRule($rule)) {
@@ -82,7 +92,9 @@ final class MessageCoverage
         }
 
         foreach ($this->branches->forRule($set, $rule) as $branch) {
-            if (! $this->covered($key . '.' . $branch, $messages)) {
+            $offset = new ConstantStringType($branch);
+
+            if (! $type->hasOffsetValueType($offset)->yes() || ! $this->present($type->getOffsetValueType($offset))) {
                 return false;
             }
         }
@@ -92,34 +104,79 @@ final class MessageCoverage
 
     /**
      * @param array<string, Type> $messages
+     *
+     * @return bool|null null means Laravel delegates to the rule's own messages
      */
-    private function nativeMessage(string $field, string $class, RuleSet $set, array $messages): bool
+    private function nativeMessage(string $field, string $class, RuleSet $set, array $messages): bool|null
     {
-        if ($this->covered($field . '.' . $class, $messages)) {
-            return true;
-        }
+        $keys = [$field . '.' . $class, $class, $field];
         $alias = $this->names->nativeAlias($class);
 
-        return null !== $alias && ! \in_array('file', $this->branches->forRule($set, $class), true) && $this->covered($field . '.' . $alias, $messages);
+        if (null !== $alias && ! \in_array('file', $this->branches->forRule($set, $class), true)) {
+            $keys[] = $field . '.' . $alias;
+        }
+        $type = $this->localMessage($field, $class, $keys, $messages);
+
+        return null === $type || $type->isNull()->yes() ? null : $this->nativePayload($type);
     }
 
     /**
+     * @param list<string> $keys
      * @param array<string, Type> $messages
      */
-    private function covered(string $key, array $messages): bool
+    private function localMessage(string $field, string $rule, array $keys, array $messages): Type|null
     {
-        foreach ($messages as $pattern => $type) {
-            $values = $type->getConstantScalarValues();
+        foreach ($keys as $key) {
+            foreach ($messages as $pattern => $type) {
+                if (! $this->paths->matches($pattern, $key)) {
+                    continue;
+                }
 
-            if ($type->isNull()->yes() || [false] === $values || [''] === $values) {
-                continue;
-            }
-
-            if ($this->paths->matches($pattern, $key)) {
-                return true;
+                return $this->messageEntry($type, $pattern, $field, $rule);
             }
         }
 
-        return false;
+        return null;
+    }
+
+    private function messageEntry(Type $type, string $pattern, string $field, string $rule): Type|null
+    {
+        if ($type->isArray()->yes() && ($pattern === $field || \str_contains($pattern, '*'))) {
+            $offset = new ConstantStringType($rule);
+
+            if (! $type->hasOffsetValueType($offset)->yes()) {
+                return null;
+            }
+            $type = $type->getOffsetValueType($offset);
+        }
+
+        return $type;
+    }
+
+    private function nativePayload(Type $type): bool
+    {
+        if (! $type->isArray()->yes()) {
+            return ! $type->isString()->no() && ! $type->toBoolean()->isFalse()->yes();
+        }
+        $arrays = $type->getConstantArrays();
+
+        if (1 !== \count($arrays) || \count($arrays[0]->getOptionalKeys()) === \count($arrays[0]->getValueTypes())) {
+            return false;
+        }
+
+        foreach ($arrays[0]->getValueTypes() as $value) {
+            if ($value->isString()->no() || ! $this->present($value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function present(Type $type): bool
+    {
+        $values = $type->getConstantScalarValues();
+
+        return ! $type->isNull()->yes() && [false] !== $values && [''] !== $values;
     }
 }

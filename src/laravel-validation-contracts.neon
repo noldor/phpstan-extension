@@ -15,6 +15,7 @@ services:
     - Noldors\PHPStan\Validation\NestedBuilderRules
     - Noldors\PHPStan\Validation\SizeMessageBranches
     - Noldors\PHPStan\Validation\MessageCoverage
+    - Noldors\PHPStan\Validation\MessageClassNames
     -
         class: Noldors\PHPStan\Validation\Configuration
         arguments:

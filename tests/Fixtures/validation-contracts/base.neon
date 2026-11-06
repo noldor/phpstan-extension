@@ -13,7 +13,7 @@ parametersSchema:
 
 parameters:
     level: 0
-    paths: [Methods.php, Fields.php, Groups.php, Messages.php, Lighthouse.php, Inherited.php, Valid.php, Unknown.php, Excluded.php]
+    paths: [Methods.php, Fields.php, Groups.php, Messages.php, Lighthouse.php, Inherited.php, Valid.php, Unknown.php, Excluded.php, ClassNames.php, ClassFreeNativeMessages.php, NestedNativeAliases.php]
     tmpDir: ../../../build/validation-contracts
     noldors:
         laravel:

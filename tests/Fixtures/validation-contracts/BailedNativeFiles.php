@@ -4,7 +4,6 @@ namespace ValidationContractFixtures;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
-use Illuminate\Validation\Rules\ImageFile;
 
 final class BailedNativeFiles
 {
@@ -20,13 +19,13 @@ final class BailedNativeFiles
     public function messages(): array
     {
         return [
-            'upload.' . File::class => 'Invalid file.',
+            'upload.file' => 'Invalid file.',
             'upload.max' => ['file' => 'Too large.'], 'upload.gt' => ['file' => 'Too small.'],
-            'image.' . ImageFile::class => 'Invalid image.',
+            'image.file' => 'Invalid file.', 'image.image' => 'Invalid image.',
             'image.max' => ['file' => 'Too large.'], 'image.gt' => ['file' => 'Too small.'],
-            'unguarded.' . File::class => 'Invalid file.',
+            'unguarded.file' => 'Invalid file.',
             'unguarded.max' => ['file' => 'Too large.'], 'unguarded.gt' => ['file' => 'Too small.'],
-            'before.max' => ['file' => 'Too large.'], 'before.' . File::class => 'Invalid file.',
+            'before.max' => ['file' => 'Too large.'], 'before.file' => 'Invalid file.',
         ];
     }
 }

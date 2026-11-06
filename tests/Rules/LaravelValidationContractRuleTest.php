@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Noldors\PHPStan\Validation\MessageCoverage;
 use Noldors\PHPStan\Validation\RuleExpressions;
 use Noldors\PHPStan\Validation\FileBuilderRules;
+use Noldors\PHPStan\Validation\MessageClassNames;
 use Noldors\PHPStan\Validation\FluentBuilderRules;
 use Noldors\PHPStan\Validation\NestedBuilderRules;
 use Noldors\PHPStan\Validation\BuiltinBuilderRules;
@@ -29,6 +30,45 @@ use Noldors\PHPStan\Rules\LaravelValidationContractRule;
  */
 final class LaravelValidationContractRuleTest extends RuleTestCase
 {
+    public function testSelectedSizeMapsAndFalseyNativeOverridesCannotFallThroughToOtherMessages(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/ShadowedMessages.php']);
+        $this->assertSame(\array_fill(0, 7, 'validation.messageCoverage'), \array_map(static fn ($error): string|null => $error->getIdentifier(), $errors));
+        $this->assertStringContainsString('name.max', $errors[0]->getMessage());
+        $this->assertStringContainsString('empty.file', $errors[1]->getMessage());
+        $this->assertStringContainsString('false.file', $errors[2]->getMessage());
+        $this->assertStringContainsString('zero.file', $errors[3]->getMessage());
+        $this->assertStringContainsString('zeroText.file', $errors[4]->getMessage());
+        $this->assertStringContainsString('name.max', $errors[5]->getMessage());
+        $this->assertStringContainsString('name.max', $errors[6]->getMessage());
+    }
+
+    public function testMalformedNativeMessagePayloadsDoNotEstablishCoverageOrHideClassKeys(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/InvalidNativePayloads.php']);
+        $this->assertSame([
+            'validation.messageCoverage', 'validation.messageCoverage', 'validation.messageCoverage',
+            'validation.messageClassName',
+        ], \array_map(static fn ($error): string|null => $error->getIdentifier(), $errors));
+    }
+
+    public function testValidationMessagesRejectKnownClassNamesWithoutGuessingOrdinaryWords(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/ClassNames.php']);
+        $this->assertSame(\array_fill(0, 7, 'validation.messageClassName'), \array_map(static fn ($error): string|null => $error->getIdentifier(), $errors));
+    }
+
+    public function testClassFreeFieldFallbacksAndFieldRuleWildcardsCoverNativeObjects(): void
+    {
+        $this->analyse([__DIR__ . '/../Fixtures/validation-contracts/ClassFreeNativeMessages.php'], []);
+    }
+
+    public function testNestedShortAliasesDoNotCoverNativeObjects(): void
+    {
+        $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NestedNativeAliases.php']);
+        $this->assertSame(['validation.messageCoverage'], \array_map(static fn ($error): string|null => $error->getIdentifier(), $errors));
+    }
+
     public function testCoverageNamesOnlyTheUncoveredBuiltinFieldRulePairs(): void
     {
         $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/Messages.php']);
@@ -65,16 +105,16 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
             'accepted.accepted', 'activeUrl.active_url', 'base64.base64', 'boolean.boolean', 'declined.declined',
             'filled.filled', 'hexColor.hex_color', 'json.json', 'list.list', 'macAddress.mac_address',
             'missing.missing', 'present.present', 'prohibited.prohibited', 'required.required', 'ulid.ulid',
-            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.Illuminate\\Validation\\Rules\\Can', 'confirmed.confirmed', 'contains.contains',
+            'acceptedIf.accepted_if', 'arrayKeys.array_keys', 'can.can covering every reachable input type; a field fallback or can.* wildcard also covers file inputs', 'confirmed.confirmed', 'contains.contains',
             'currentPassword.current_password', 'declinedIf.declined_if', 'distinct.distinct', 'doesntContain.doesnt_contain',
-            'enum.Illuminate\\Validation\\Rules\\Enum', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
+            'enum.enum covering every reachable input type; a field fallback or enum.* wildcard also covers file inputs', 'exists.exists', 'in.in', 'inArray.in_array', 'inArrayKeys.in_array_keys',
             'missingIf.missing_if', 'missingUnless.missing_unless', 'missingWith.missing_with', 'missingWithAll.missing_with_all',
             'notIn.not_in', 'notRegex.not_regex', 'presentIf.present_if', 'presentUnless.present_unless',
             'presentWith.present_with', 'presentWithAll.present_with_all', 'prohibitedIfAccepted.prohibited_if_accepted',
             'prohibitedIfDeclined.prohibited_if_declined', 'prohibits.prohibits', 'regex.regex', 'requiredArrayKeys.required_array_keys',
             'requiredIfAccepted.required_if_accepted', 'requiredIfDeclined.required_if_declined', 'requiredWith.required_with',
             'requiredWithAll.required_with_all', 'requiredWithout.required_without', 'requiredWithoutAll.required_without_all',
-            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.Illuminate\\Validation\\Rules\\AnyOf',
+            'timezone.timezone', 'unique.unique', 'url.url', 'uuid.uuid', 'anyOf.any_of covering every reachable input type; a field fallback or anyOf.* wildcard also covers file inputs',
         ]);
     }
 
@@ -100,11 +140,18 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
         $this->assertMissingPairs('ComparisonSizeBranches.php', ['gt.gt', 'gte.gte', 'lt.lt', 'lte.lte']);
     }
 
-    public function testNativeObjectOverridesFollowTheActualLaravelClassKeyContract(): void
+    public function testNativeClassOverridesAreRejectedAndUnsafeAliasesNeedClassFreeCoverage(): void
     {
         $errors = $this->gatherAnalyserErrors([__DIR__ . '/../Fixtures/validation-contracts/NativeObjectMessages.php']);
         $this->assertSame([
-            'Provide an explicit public validation message for unsafe.Illuminate\\Validation\\Rules\\Enum.',
+            'Provide an explicit public validation message for unsafe.enum covering every reachable input type; a field fallback or unsafe.* wildcard also covers file inputs.',
+            ...\array_map(static fn (string $key): string => 'Do not use PHP class names in validation message keys or text (entry: ' . $key . ').', [
+                'permission.Illuminate\\Validation\\Rules\\Can', 'status.Illuminate\\Validation\\Rules\\Enum',
+                'choice.Illuminate\\Validation\\Rules\\AnyOf', 'file.Illuminate\\Validation\\Rules\\File',
+                'image.Illuminate\\Validation\\Rules\\ImageFile', 'mail.Illuminate\\Validation\\Rules\\Email',
+                'password.Illuminate\\Validation\\Rules\\Password', 'Illuminate\\Validation\\Rules\\Enum',
+                'Illuminate\\Validation\\Rules\\File', 'status.Illuminate\\Validation\\Rules\\Enum',
+            ]),
             'Use a field-specific Lighthouse message key instead of the generic rule key Illuminate\\Validation\\Rules\\Enum.',
             'Use a field-specific Lighthouse message key instead of the generic rule key Illuminate\\Validation\\Rules\\File.',
         ], \array_map(static fn ($error): string => $error->getMessage(), $errors));
@@ -170,6 +217,7 @@ final class LaravelValidationContractRuleTest extends RuleTestCase
                 \array_map(static fn (string $class): array => ['class' => 'ValidationContractFixtures\\' . $class, 'fields' => ['items', 'tags']], ['WrongFields', 'OrdinaryAfterRelationship', 'ParentAfterChild', 'SplitRelationship', 'Valid']),
                 [['class' => 'ValidationContractFixtures\\InputBound', 'fields' => ['ownerId']], ['class' => 'ValidationContractFixtures\\ActualNestedInput', 'fields' => ['input']]],
             ),
+            new MessageClassNames(self::createReflectionProvider()),
         );
     }
 
