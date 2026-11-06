@@ -16,10 +16,90 @@ use Illuminate\Translation\Translator;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Validation\Rules\Password;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 
 final class LaravelValidationRuntimeMessagesTest extends TestCase
 {
+    public function testSelectedIncompleteSizeMapsDoNotReachFieldFallbacks(): void
+    {
+        $loader = new ArrayLoader();
+        $loader->addMessages('en', 'validation', ['max' => ['file' => 'DEFAULT file max']]);
+        $factory = new Factory(new Translator($loader, 'en'));
+        $rules = ['name' => ['string', 'max:0']];
+
+        foreach ([
+            ['name.string' => 'Text.', 'name' => 'Public fallback.', 'name.max' => ['string' => 'String max.']],
+            ['name.string' => 'Text.', 'name.max' => ['string' => 'String max.'], 'name.*' => 'Public fallback.'],
+            ['name' => ['string' => 'Text.', 'max' => 'Public fallback.'], 'name.max' => ['string' => 'String max.']],
+        ] as $messages) {
+            $this->assertSame(['Text.', 'DEFAULT file max'], $factory->make(['name' => new File(__FILE__)], $rules, $messages)->errors()->get('name'));
+            unset($messages['name.max']);
+            $this->assertSame(['Text.', 'Public fallback.'], $factory->make(['name' => new File(__FILE__)], $rules, $messages)->errors()->get('name'));
+        }
+    }
+
+    public function testFalseyNativeBuilderOverridesMaskDelegatedMessagesButNullAndMapsDelegate(): void
+    {
+        $this->withNativeFactory(function (Factory $factory): void {
+            foreach (['', false, 0, '0'] as $message) {
+                $validator = $factory->make(['upload' => 'text'], ['upload' => [Rule::file()]], ['upload.file' => 'Invalid file.', 'upload' => $message]);
+                $this->assertSame([\Illuminate\Validation\Rules\File::class], $validator->errors()->get('upload'));
+            }
+
+            foreach ([null, []] as $message) {
+                $validator = $factory->make(['upload' => 'text'], ['upload' => [Rule::file()]], ['upload.file' => 'Invalid file.', 'upload' => $message]);
+                $this->assertSame(['Invalid file.'], $validator->errors()->get('upload'));
+            }
+        });
+    }
+
+    public function testFalseyNativeOverridePayloadsLeakTheRuleClassWhileMessageListsRemainSupported(): void
+    {
+        $this->withNativeFactory(function (Factory $factory): void {
+            $rules = ['status' => ['bail', 'string', Rule::enum(RuntimeMessageEnum::class)]];
+
+            foreach ([[], false, '', 0, '0'] as $message) {
+                $validator = $factory->make(['status' => 'unknown'], $rules, ['status.enum' => $message]);
+                $this->assertSame([\Illuminate\Validation\Rules\Enum::class], $validator->errors()->get('status'));
+            }
+            $list = $factory->make(['status' => 'unknown'], $rules, ['status.enum' => ['One.', 'Two.', '0']]);
+            $this->assertSame(['One.', 'Two.', '0'], $list->errors()->get('status'));
+        });
+    }
+
+    public function testClassFreeFieldFallbacksPreserveSpecificBuiltinMessagesForFiles(): void
+    {
+        $this->withNativeFactory(function (Factory $factory): void {
+            foreach ([new File(__FILE__), new UploadedFile(__FILE__, 'rule.php', test: true)] as $value) {
+                foreach (['status' => 'Unknown status.', 'status.*' => 'Unknown status.'] as $fallback => $message) {
+                    $messages = ['status.required' => 'Required.', 'status.string' => 'String.', $fallback => $message];
+                    $rules = ['status' => ['required', 'string', Rule::enum(RuntimeMessageEnum::class)]];
+                    $this->assertSame(['String.', 'Unknown status.'], $factory->make(['status' => $value], $rules, $messages)->errors()->get('status'));
+                    $this->assertSame(['Required.'], $factory->make([], $rules, $messages)->errors()->get('status'));
+                }
+
+                foreach (['statuses.*', 'statuses.*.*'] as $fallback) {
+                    $nested = $factory->make(
+                        ['statuses' => [$value]],
+                        ['statuses.*' => ['string', Rule::enum(RuntimeMessageEnum::class)]],
+                        ['statuses.*.string' => 'String.', $fallback => 'Unknown status.'],
+                    );
+                    $this->assertSame(['String.', 'Unknown status.'], $nested->errors()->get('statuses.0'));
+                }
+            }
+        });
+    }
+
+    public function testFieldFallbackPrecedesShortObjectAliasesAndNestedAliasesDoNotOverrideObjects(): void
+    {
+        $this->withNativeFactory(function (Factory $factory): void {
+            $rules = ['status' => [Rule::enum(RuntimeMessageEnum::class)]];
+            $this->assertSame(['Fallback.'], $factory->make(['status' => 'unknown'], $rules, ['status' => 'Fallback.', 'status.enum' => 'Short.'])->errors()->get('status'));
+            $this->assertSame(['DEFAULT enum'], $factory->make(['status' => 'unknown'], $rules, ['status' => ['enum' => 'Nested short.']])->errors()->get('status'));
+        });
+    }
+
     public function testLaravelSelectsOnlyTheRelevantSizeBranchAndFallsBackFromNull(): void
     {
         $loader = new ArrayLoader();

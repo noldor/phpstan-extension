@@ -14,6 +14,7 @@ exceptions. No application namespace or relationship name is built into the rule
 | V4 | `validation.messageCoverage` | Provide an explicit field/rule message for each statically known failing built-in rule. Wildcards and translation calls are accepted. Application rule objects and closures own their public failure messages. |
 | V5 | `validation.lighthouseMessageKey` | In Lighthouse validators, replace generic built-in keys such as `exists` with field-specific keys such as `ownerId.exists`. |
 | V6 | `validation.relativeInputPath` | For explicitly configured input-bound validators, remove an extra `input.` prefix when the following segment names a known field of that input. |
+| V7 | `validation.messageClassName` | Keep known PHP class names out of validation message keys and text. Public short rule identifiers such as `enum` remain valid. |
 
 The rule reports contracts on the selected concrete class. Abstract bases and
 traits provide inherited definitions without being required to declare operation
@@ -108,18 +109,74 @@ Implicit native constraints are included: numeric `digits(...)`,
 `digitsBetween(...)` and `exactly(...)` also require an `integer` message.
 Empty tokens in string rule definitions are ignored, matching Laravel.
 
-Native rule objects use Laravel's actual class-key message contract. For
-`Can`, `Enum` and `AnyOf`, a message such as
-`'status.' . Illuminate\Validation\Rules\Enum::class` covers every failing input.
-Laravel also accepts the short `status.enum` alias when its message type is not
-`file`; the check accepts that alias when numeric/array rules, or `bail` with an
-earlier string rule, guarantee a non-file type. Otherwise the full class key
-covers the possible file branch. An explicit full class-key override for `File`,
-`ImageFile`, `Email` or `Password` also covers all that object's nested failures;
-individual nested messages remain a supported alternative. Generic native
-class keys and generic `password.mixed`/`password.letters`/`password.numbers`/
+### Native object lookup and class-free keys
+
+The supported native-object lookup is verified against Laravel 13.38.0.
+`Validator::validateUsingCustomRule()` supplies the runtime rule class to
+`FormatsMessages::getFromLocalArray()`. Its candidates are `field.class`,
+`class`, then `field`; it appends the short `field.enum` form only when
+`getAttributeType()` is not `file`. Numeric/array rules affect that type;
+otherwise a Symfony `File` or `UploadedFile` selects `file`. The class-key
+forms work in Laravel but violate the public message contract and are diagnosed.
+
+For `Can`, `Enum` and `AnyOf`, the check accepts the short alias when
+numeric/array rules, or `bail` with an earlier string rule, prove that the
+short lookup is reachable. An external input/coercion contract may also make
+the alias correct at runtime, but is outside this check's supported proof.
+Do not add redundant application guards just to satisfy a conservative analysis
+of `mixed`. A native scalar field fallback or a field/rule wildcard provides
+explicit class-free coverage without introducing a new runtime restriction:
+
+```php
+public function rules(): array
+{
+    return [
+        'status' => ['required', 'string', Rule::enum(Status::class)],
+        'statuses.*' => ['required', 'string', Rule::enum(Status::class)],
+    ];
+}
+
+public function messages(): array
+{
+    return [
+        'status.required' => 'Choose a status.',
+        'status.string' => 'The status must be text.',
+        'status' => 'Unknown status.',
+        'statuses.*.required' => 'Choose a status.',
+        'statuses.*.string' => 'The status must be text.',
+        'statuses.*.*' => 'Unknown status.',
+    ];
+}
+```
+
+The scalar `status` fallback precedes the appended `status.enum` alias;
+explicit built-in `status.required` and `status.string` messages still win.
+An earlier selected rule entry also shadows the field fallback when that entry
+is an incomplete size map: `name.max => ['string' => '...']` does not reach a
+scalar `name` fallback for the file branch. Supply every reachable size branch.
+Coverage resolves the raw selected entry before checking its size branches;
+later wildcards and parent rule maps cannot fill a missing branch in that entry.
+For field/rule wildcards, put specific messages first: source order controls
+which matching key wins. A broad fallback intentionally shares one public text
+between the affected rule failures, and Laravel can deduplicate identical texts.
+It cannot preserve distinct object-rule failures. For that contract, use
+supported rule-owned messages or an actual input guarantee with supported keys.
+Collection element scalar fallbacks use `statuses.*`; field/rule wildcards use
+`statuses.*.*`.
+
+Nested short maps such as `['status' => ['enum' => 'Unknown status.']]`
+are not equivalent: the attribute candidate is consulted first and expects the
+raw class as its array index, returning null before the short alias is tried.
+The check preserves this distinction. `File`, `ImageFile`, `Email` and `Password`
+can instead expose their delegated standard failures with explicit normal keys
+such as `upload.file`, `upload.mimes` and `upload.min`. Keep every reachable
+nested failure covered. Native rule classes have no uniform `->message(...)`
+setter; use only their actual supported APIs.
+
+Generic `password.mixed`/`password.letters`/`password.numbers`/
 `password.symbols`/`password.uncompromised` keys are rejected for Lighthouse
-validators. Add the public field prefix.
+validators. Add the public field prefix. Message coverage diagnostics name
+public native aliases and class-free alternatives instead of requesting class keys.
 
 Nested field/rule message maps and Laravel's size-specific submaps are accepted
 only when they cover the branches that can fail. A direct `field.max` message
@@ -138,8 +195,15 @@ an explicit numeric rule. Their submaps must include that possible branch unless
 its numeric comparison state before the next built-in rule, so a comparison does
 not add a numeric branch to another `min`, `max`, `size` or `between` rule.
 
-Literal empty, null and false messages do not establish coverage. Translation calls
+Literal empty, null and false messages do not establish coverage. Native object
+overrides must also avoid falsey `0`/`'0'` scalar payloads, which can expose the
+runtime rule class through Laravel's fallback. Nonempty lists of message strings
+are supported, including the text `'0'` inside a nonempty list; empty or malformed
+nested arrays do not establish native-object coverage. Translation calls
 are accepted without loading or verifying the runtime translation catalog.
+For delegated native builders, a selected invalid scalar override still prevents
+delegation even when all inner rules have messages. A null override, or an
+attribute map without the raw class index, delegates to the builder normally.
 Wildcard matching follows Laravel's single-path-segment message matching; a
 concrete index message does not establish coverage for every element of a
 wildcard rule.
@@ -170,3 +234,14 @@ The check verifies declarations and keys, not message accuracy, translation
 availability, actual failing requests or public error-path behavior. Keep endpoint
 regressions for those guarantees. It provides diagnostics without rewriting
 validation behavior, messages, method order or public field paths.
+
+`validation.messageClassName` examines statically known message keys recursively,
+including empty container keys, and constant message strings, including `::class`
+concatenation, and inferred
+class-string values. It recognizes reflected qualified class names regardless
+of case and canonical global short class names such as `RuntimeException`.
+It does not guess that an ordinary word such as `File` or an imported basename
+such as `Enum` denotes a namespaced class. Unknown class identities, dynamic
+strings/keys, translation contents and custom rule `$fail()` bodies require
+review. The public contract prohibits class names in those places as well;
+this diagnostic does not claim complete message-content enforcement.

@@ -20,6 +20,7 @@ use Noldors\PHPStan\Validation\MethodArrays;
 use Noldors\PHPStan\Configuration\ClassScope;
 use Noldors\PHPStan\Validation\Configuration;
 use Noldors\PHPStan\Validation\MessageCoverage;
+use Noldors\PHPStan\Validation\MessageClassNames;
 
 /**
  * @implements Rule<InClassNode>
@@ -34,6 +35,7 @@ final class LaravelValidationContractRule implements Rule
         private readonly Paths $paths,
         private readonly RuleNames $names,
         private readonly Configuration $configuration,
+        private readonly MessageClassNames $messageClasses,
     ) {}
 
     public function getNodeType(): string
@@ -58,11 +60,28 @@ final class LaravelValidationContractRule implements Rule
         $errors = $this->methodOrder($declaration);
         $errors = [...$errors, ...$this->fieldOrder($class, $definitions['rules'], $messages, $definitions['attributes'])];
 
-        foreach ($this->coverage->missing($class, $scope, $messages) as $key) {
-            $errors[] = $this->error('Provide an explicit public validation message for ' . $key . '.', 'messageCoverage');
+        foreach ($this->coverage->missing($class, $scope, $definitions['messages']) as $key) {
+            $errors[] = $this->error($this->coverageMessage($key), 'messageCoverage');
+        }
+
+        foreach ($this->messageClasses->entries($definitions['messages']) as $key) {
+            $errors[] = $this->error('Do not use PHP class names in validation message keys or text (entry: ' . $key . ').', 'messageClassName');
         }
 
         return [...$errors, ...$this->lighthouseKeys($class, $definitions)];
+    }
+
+    private function coverageMessage(string $key): string
+    {
+        $separator = \mb_strrpos($key, '.');
+        $alias = false === $separator ? null : $this->names->nativeAlias(\mb_substr($key, $separator + 1));
+
+        if (null === $alias) {
+            return 'Provide an explicit public validation message for ' . $key . '.';
+        }
+        $field = \mb_substr($key, 0, $separator);
+
+        return 'Provide an explicit public validation message for ' . $field . '.' . $alias . ' covering every reachable input type; a field fallback or ' . $field . '.* wildcard also covers file inputs.';
     }
 
     /**
