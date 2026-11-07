@@ -1,0 +1,7 @@
+includes:
+    - ../../../src/laravel.neon
+
+parameters:
+    level: 0
+    paths: [Enums.php, Registration.php]
+    scanFiles: [GraphQLTypes.php]

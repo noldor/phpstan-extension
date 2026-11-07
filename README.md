@@ -85,10 +85,8 @@ composer check
 random order. Intentionally invalid fixtures are excluded from direct static
 analysis and formatting and are analysed by the rule tests instead.
 
-Laravel is a development-only dependency. Lighthouse is represented by a minimal
-test-only validator stub loaded via `autoload-dev`; the tests check inheritance
-detection, not Lighthouse's runtime behaviour. Neither framework is installed
-when this package is used as a dependency.
+Laravel is a development-only dependency. Tests use minimal Lighthouse and
+webonyx stand-ins for validator inheritance and enum registration.
 
 ## Distribution
 
