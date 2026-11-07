@@ -44,3 +44,12 @@ services:
             resolvers: @noldors.laravel.lighthouseResolvers
             subscriptions: @noldors.laravel.lighthouseSubscriptions
         tags: [phpstan.rules.rule]
+    -
+        class: Noldors\PHPStan\Collectors\LighthouseEnumRegistrationCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Collectors\GraphQLEnumDescriptionCollector
+        tags: [phpstan.collector]
+    -
+        class: Noldors\PHPStan\Rules\LighthouseEnumDescriptionRule
+        tags: [phpstan.rules.rule]
