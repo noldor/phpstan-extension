@@ -425,6 +425,9 @@ services:
         class: Noldors\PHPStan\Rules\JsonThrowOnErrorRule
         tags: [phpstan.rules.rule]
     -
+        class: Noldors\PHPStan\RestrictedUsage\ParseUrlUsageExtension
+        tags: [phpstan.restrictedFunctionUsageExtension]
+    -
         class: Noldors\PHPStan\Rules\MutableCollectionExposureRule
         arguments:
             owners: @noldors.collectionOwners

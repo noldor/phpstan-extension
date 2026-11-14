@@ -4,7 +4,7 @@
 
 | Set | Configuration | Contents |
 | --- | --- | --- |
-| PHP | `src/php.neon` | Reference parameters, exception translation, JSON error flags, configured collection ownership and DTO infrastructure restrictions. |
+| PHP | `src/php.neon` | Reference parameters, exception translation, JSON error flags, RFC 3986 URI parsing, configured collection ownership and DTO infrastructure restrictions. |
 | Laravel | `src/laravel.neon` | Includes PHP, adds Laravel DTO infrastructure selectors, enables validation rules and provides a configurable PostgreSQL instant check. |
 | Eloquent property bridge | `src/laravel-model-properties.neon` | Includes Laravel and adds computed-accessor and schema-aware PHPDoc checks; requires a separately included Larastan extension. |
 
@@ -23,6 +23,7 @@ configuration when analysing Laravel APIs.
 | `NoReferenceParameterRule` | `api.referenceParameter` | [Reference parameters](rules/no-reference-parameter.md) |
 | `PreservePreviousExceptionRule` | `exceptions.missingPrevious` | [Exception translation](rules/preserve-previous-exception.md) |
 | `JsonThrowOnErrorRule` | `json.missingThrowOnError` | [JSON error flags](rules/json-throw-on-error.md) |
+| `ParseUrlUsageExtension` | `uri.parseUrl` | [RFC 3986 URI parsing](rules/parse-url.md) |
 | `MutableCollectionExposureRule` | `encapsulation.mutableCollectionExposure` | [Mutable collections](rules/mutable-collection-exposure.md) |
 | `DtoInfrastructureUsageExtension` | `architecture.dtoInfrastructureUsage` | [DTO infrastructure usage](rules/dto-infrastructure-usage.md) |
 | `InjectedDependencyRule` | `api.dependencyPromotion`, `api.dependencyReadonly` | [Constructor dependencies](rules/constructor-dependencies.md) |
@@ -32,8 +33,8 @@ configuration when analysing Laravel APIs.
 | PHPUnit provider collectors and rule | `phpunit.providerSideEffect` | [Data provider side effects](rules/phpunit-data-provider-side-effects.md) |
 | `NoDatabaseBuilderMocksRule` | `phpunit.databaseBuilderMock` | [Database builder mocks](rules/no-database-builder-mocks.md) |
 
-Reference-parameter, exception-translation, JSON-flag, TLS, logging, assertion and
-PHPUnit-provider checks run when a set is connected. Database builder mock checks
+Reference-parameter, exception-translation, JSON-flag, URI parsing, TLS, logging,
+assertion and PHPUnit-provider checks run when a set is connected. Database builder mock checks
 require explicit persistence-test class/namespace scopes; they are empty by default.
 Collection owners and DTO scopes are empty by default; configure the classes,
 interfaces or namespaces that actually have those contracts in the consuming
