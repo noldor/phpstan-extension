@@ -1,0 +1,8 @@
+includes:
+    - ../../../src/php.neon
+
+parameters:
+    level: 0
+    paths:
+        - Calls.php
+    tmpDir: ../../../build/phpstan-consumer-parse-url
